@@ -78,7 +78,7 @@ def boundaries_append_border(
     Append same border to all cells in range, can choose between over using new
     borders or keep original borders
     """
-    range_address = pyUtility.xlsx.utils.boundaries_to_range(
+    range_address = openpyxlplus.utils.boundaries_to_range(
         start_row,start_col,end_row,end_col
     )
     for cell_row in converter.rows_from_range(range_address):
@@ -106,7 +106,7 @@ def boundaries_apply_style(
         each individual element as a named style. The shape must be the same as
         range specified by range_string or boundaries
     """
-    range_address = pyUtility.xlsx.utils.boundaries_to_range(
+    range_address = openpyxlplus.utils.boundaries_to_range(
         start_row,start_col,end_row,end_col
     )
     width = end_col - start_col + 1
@@ -151,7 +151,7 @@ def boundaries_append_outline(worksheet,start_row,start_col,end_row,end_col,side
         raise ValueError(f"side must be object of {Side}")
     
     arr_list = []
-    range_address = pyUtility.xlsx.utils.boundaries_to_range(
+    range_address = openpyxlplus.utils.boundaries_to_range(
         start_row,start_col,end_row,end_col
     )
     for cell_row in converter.rows_from_range(range_address):

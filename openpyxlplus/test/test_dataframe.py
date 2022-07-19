@@ -7,8 +7,8 @@ from numpy import array as Array
 from numpy.testing import assert_array_equal
 from openpyxl.styles import NamedStyle,Font,Alignment,Border,Side
 from openpyxl import Workbook
-import pyUtility.xlsx.dataframe
-from pyUtility.xlsx.cell_range import SheetCellRange
+import openpyxlplus.dataframe
+from openpyxlplus.cell_range import SheetCellRange
 import numpy as np
 
 class testDataFrame(unittest.TestCase):
@@ -63,12 +63,12 @@ class testDataFrame(unittest.TestCase):
         style_red = NamedStyle("red",font=Font(color="ff0000"))
         # # won't allow to use styles with different shape
         with self.assertRaises(ValueError):
-            pyUtility.xlsx.dataframe.df_to_excel(
+            openpyxlplus.dataframe.df_to_excel(
                 self.df,self.ws,
                 body_styles = self.wrong_style_array
             )
         # offset works
-        pyUtility.xlsx.dataframe.df_to_excel(testdf,ws,row=2,col=2)
+        openpyxlplus.dataframe.df_to_excel(testdf,ws,row=2,col=2)
         # skip first row and first column
         self.assertIsNone(ws['A1'].value)
         self.assertIsNone(ws['A2'].value)
@@ -79,44 +79,44 @@ class testDataFrame(unittest.TestCase):
         self.assertEqual(ws['B5'].value,3)
 
         # no header works
-        pyUtility.xlsx.dataframe.df_to_excel(testdf,ws,row=2,col=2,headers=False)
+        openpyxlplus.dataframe.df_to_excel(testdf,ws,row=2,col=2,headers=False)
         self.assertEqual(ws['B2'].value,1)
 
-        pyUtility.xlsx.dataframe.df_to_excel(testdf,ws,row=2,col=2,headers=None)
+        openpyxlplus.dataframe.df_to_excel(testdf,ws,row=2,col=2,headers=None)
         self.assertEqual(ws['B2'].value,1)
 
         # assign headers work
-        pyUtility.xlsx.dataframe.df_to_excel(testdf,ws,row=1,col=1,headers=["x","y"])
+        openpyxlplus.dataframe.df_to_excel(testdf,ws,row=1,col=1,headers=["x","y"])
         self.assertEqual(ws['A1'].value,"x")
         self.assertEqual(ws['B1'].value,"y")
 
         # header style works
         # single
-        pyUtility.xlsx.dataframe.df_to_excel(
+        openpyxlplus.dataframe.df_to_excel(
             testdf,ws,row=1,col=1,header_styles=style_bold
         )
         self.assertEqual(ws['B1'].font.b,True)
 
         #list multiple
-        pyUtility.xlsx.dataframe.df_to_excel(
+        openpyxlplus.dataframe.df_to_excel(
             testdf,ws,row=1,col=1,header_styles=[style_red]
         )
         self.assertEqual(ws['B1'].font.color.rgb,"00ff0000")
 
         # list works
-        pyUtility.xlsx.dataframe.df_to_excel(
+        openpyxlplus.dataframe.df_to_excel(
             testdf,ws,row=1,col=1,header_styles=[style_bold,style_red]
         )
         self.assertEqual(ws['A1'].font.b,True)
         self.assertEqual(ws['B1'].font.color.rgb,"00ff0000")
         # array works
-        pyUtility.xlsx.dataframe.df_to_excel(
+        openpyxlplus.dataframe.df_to_excel(
             testdf,ws,row=1,col=1,header_styles=Array([style_bold,style_red])
         )
         self.assertEqual(ws['A1'].font.b,True)
         self.assertEqual(ws['B1'].font.color.rgb,"00ff0000")
         # pandas series works
-        pyUtility.xlsx.dataframe.df_to_excel(
+        openpyxlplus.dataframe.df_to_excel(
             testdf,ws,row=1,col=1,header_styles=Series([style_bold,style_red])
         )
         self.assertEqual(ws['A1'].font.b,True)
@@ -124,7 +124,7 @@ class testDataFrame(unittest.TestCase):
         wb.close()
 
     def test_body(self):
-        pyUtility.xlsx.dataframe.df_to_excel(self.df,self.ws,body_styles=self.style_array)
+        openpyxlplus.dataframe.df_to_excel(self.df,self.ws,body_styles=self.style_array)
         # column headers added
         self.assertEqual(self.ws['A1'].value,"percent")
         self.assertEqual(self.ws['C1'].value,"mixed")
@@ -159,14 +159,14 @@ class testMultiHeader(unittest.TestCase):
         ws = wb.active
         with self.assertRaises(ValueError):
             # doesn't work if shaped is incorrect
-            pyUtility.xlsx.dataframe.df_to_excel(
+            openpyxlplus.dataframe.df_to_excel(
                 self.df,
                 ws,
                 row=2,
                 header_styles= Array([1,2])
             )
 
-        pyUtility.xlsx.dataframe.df_to_excel(
+        openpyxlplus.dataframe.df_to_excel(
             self.df,
             ws,
             row=2,
@@ -227,7 +227,7 @@ class testDataFrameMinimal(unittest.TestCase):
         # at 2,2
         self.wb.create_sheet("sheet1")
         ws = self.wb["sheet1"]
-        pyUtility.xlsx.dataframe.df_to_sheet_minimal(
+        openpyxlplus.dataframe.df_to_sheet_minimal(
             df = self.df,
             ws = ws,
             row_anchor=2,
@@ -240,7 +240,7 @@ class testDataFrameMinimal(unittest.TestCase):
         # at 10,3
         self.wb.create_sheet("sheet2")
         ws = self.wb["sheet2"]
-        pyUtility.xlsx.dataframe.df_to_sheet_minimal(
+        openpyxlplus.dataframe.df_to_sheet_minimal(
             df = self.df,
             ws = ws,
             row_anchor=11,
@@ -261,7 +261,7 @@ class testDataFrameMinimal(unittest.TestCase):
         )
         self.wb.create_sheet("sheet3")
         ws = self.wb["sheet3"]
-        pyUtility.xlsx.dataframe.df_to_sheet_minimal(
+        openpyxlplus.dataframe.df_to_sheet_minimal(
             df = self.df,
             ws = ws,
             index=True,
@@ -277,7 +277,7 @@ class testDataFrameMinimal(unittest.TestCase):
         )
         self.wb.create_sheet("sheet3")
         ws = self.wb["sheet3"]
-        pyUtility.xlsx.dataframe.df_to_sheet_minimal(
+        openpyxlplus.dataframe.df_to_sheet_minimal(
             df = self.df,
             ws = ws,
             index=True,
@@ -307,7 +307,7 @@ class testDataFrameSimple(unittest.TestCase):
         self.wb.create_sheet("sheet1")
         ws = self.wb["sheet1"]
 
-        pyUtility.xlsx.dataframe.df_to_sheet_simple(
+        openpyxlplus.dataframe.df_to_sheet_simple(
             df = self.df,
             ws = ws,
             row_anchor=2,
@@ -323,7 +323,7 @@ class testDataFrameSimple(unittest.TestCase):
         self.wb.create_sheet("sheet2")
         ws = self.wb["sheet2"]
 
-        pyUtility.xlsx.dataframe.df_to_sheet_simple(
+        openpyxlplus.dataframe.df_to_sheet_simple(
             df = self.df,
             ws = ws,
             index=True,
@@ -346,7 +346,7 @@ class testDataFrameSimple(unittest.TestCase):
         # change style by column
         self.wb.create_sheet("sheet3")
         ws = self.wb["sheet3"]
-        pyUtility.xlsx.dataframe.df_to_sheet_simple(
+        openpyxlplus.dataframe.df_to_sheet_simple(
             df = self.df,
             ws = ws,
             index=False,
@@ -362,7 +362,7 @@ class testDataFrameSimple(unittest.TestCase):
         # change style by row
         self.wb.create_sheet("sheet4")
         ws = self.wb["sheet4"]
-        pyUtility.xlsx.dataframe.df_to_sheet_simple(
+        openpyxlplus.dataframe.df_to_sheet_simple(
             df = self.df,
             ws = ws,
             index=False,
@@ -378,7 +378,7 @@ class testDataFrameSimple(unittest.TestCase):
         # with index and header
         self.wb.create_sheet("sheet5")
         ws = self.wb["sheet5"]
-        table_range5 = pyUtility.xlsx.dataframe.df_to_sheet_simple(
+        table_range5 = openpyxlplus.dataframe.df_to_sheet_simple(
             df = self.df,
             ws = ws,
             index=True,
@@ -390,7 +390,7 @@ class testDataFrameSimple(unittest.TestCase):
         # with index
         self.wb.create_sheet("sheet6")
         ws = self.wb["sheet6"]
-        table_range5 = pyUtility.xlsx.dataframe.df_to_sheet_simple(
+        table_range5 = openpyxlplus.dataframe.df_to_sheet_simple(
             df = self.df,
             ws = ws,
             index=True,
@@ -402,7 +402,7 @@ class testDataFrameSimple(unittest.TestCase):
         # with header
         self.wb.create_sheet("sheet7")
         ws = self.wb["sheet7"]
-        table_range5 = pyUtility.xlsx.dataframe.df_to_sheet_simple(
+        table_range5 = openpyxlplus.dataframe.df_to_sheet_simple(
             df = self.df,
             ws = ws,
             index=False,

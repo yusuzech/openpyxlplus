@@ -2,7 +2,7 @@ import unittest
 from openpyxl import Workbook,worksheet
 import pandas as pd
 import numpy as np
-from pyUtility.xlsx import writer,cell_range
+from openpyxlplus import writer,cell_range
 
 def is_range_equal_to_array(ws,range_string,array):
     ret = np.array_equal(

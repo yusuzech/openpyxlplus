@@ -1,6 +1,6 @@
 import unittest
-import pyUtility.xlsx.styles
-from pyUtility.xlsx.styles import get_sides
+import openpyxlplus.styles
+from openpyxlplus.styles import get_sides
 from openpyxl import load_workbook
 from openpyxl import Workbook
 from openpyxl.styles import NamedStyle,Font,Alignment,Border,Side
@@ -22,32 +22,32 @@ class testAdvanced(unittest.TestCase):
         ws = self.wb["test_borders"]
 
         self.assertEqual(
-            pyUtility.xlsx.styles.get_sides(ws["B2"].border)[0]["direction"],
+            openpyxlplus.styles.get_sides(ws["B2"].border)[0]["direction"],
             "right"
         )
         self.assertEqual(
-            pyUtility.xlsx.styles.get_sides(ws["B4"].border)[0]["direction"],
+            openpyxlplus.styles.get_sides(ws["B4"].border)[0]["direction"],
             "left"
         )
         self.assertEqual(
-            pyUtility.xlsx.styles.get_sides(ws["B6"].border)[0]["direction"],
+            openpyxlplus.styles.get_sides(ws["B6"].border)[0]["direction"],
             "top"
         )
         self.assertEqual(
-            pyUtility.xlsx.styles.get_sides(ws["B8"].border)[0]["direction"],
+            openpyxlplus.styles.get_sides(ws["B8"].border)[0]["direction"],
             "bottom"
         )
 
         self.assertSetEqual(
             set([x["direction"] for x in\
-                 pyUtility.xlsx.styles.get_sides(ws["B10"].border)]),
+                 openpyxlplus.styles.get_sides(ws["B10"].border)]),
             set(["left","right","top","bottom"])
         )
         #merge_border
 
         # new = True/False works
         self.assertEqual(
-            pyUtility.xlsx.styles.merge_border(
+            openpyxlplus.styles.merge_border(
                 Border(left=Side(style="thin")),
                 Border(left=Side(style="thick")),
             ).left.style,
@@ -55,7 +55,7 @@ class testAdvanced(unittest.TestCase):
         )
 
         self.assertEqual(
-            pyUtility.xlsx.styles.merge_border(
+            openpyxlplus.styles.merge_border(
                 Border(left=Side(style="thin")),
                 Border(left=Side(style="thick")),
                 new = False
@@ -64,7 +64,7 @@ class testAdvanced(unittest.TestCase):
         )
 
         # merging to original borders work
-        new_borders = pyUtility.xlsx.styles.merge_border(
+        new_borders = openpyxlplus.styles.merge_border(
                 Border(left=Side(style="thin")),
                 Border(right=Side(style="thick")),
                 new = False
@@ -76,7 +76,7 @@ class testAdvanced(unittest.TestCase):
         wb = Workbook()
         ws = wb.active
         ws["A1"].border = Border(left=Side(style="thin"))
-        pyUtility.xlsx.styles.cell_append_border(
+        openpyxlplus.styles.cell_append_border(
             ws["A1"],Border(right=Side(style="thick"))
         )
         cell_border = ws["A1"].border
@@ -90,14 +90,14 @@ class testAdvanced(unittest.TestCase):
             top=Side(style="thin")
         )
 
-        pyUtility.xlsx.styles.boundaries_append_border(ws,1,1,1,1,three_sides_border)
+        openpyxlplus.styles.boundaries_append_border(ws,1,1,1,1,three_sides_border)
         cell_border = ws["A1"].border
         self.assertEqual(cell_border.left.style,"thin")
         self.assertEqual(cell_border.right.style,"thin")
         self.assertEqual(cell_border.top.style,"thin")
         self.assertIsNone(cell_border.bottom)
 
-        pyUtility.xlsx.styles.range_append_border(ws,"A3",three_sides_border)
+        openpyxlplus.styles.range_append_border(ws,"A3",three_sides_border)
         cell_border = ws["A3"].border
         self.assertEqual(cell_border.left.style,"thin")
         self.assertEqual(cell_border.right.style,"thin")
@@ -105,8 +105,8 @@ class testAdvanced(unittest.TestCase):
         self.assertIsNone(cell_border.bottom)
         # aboundaries_append_border, range_append_border works for more than 
         # one cell
-        pyUtility.xlsx.styles.boundaries_append_border(ws,1,1,2,2,three_sides_border)
-        pyUtility.xlsx.styles.range_append_border(ws,"C1:D2",three_sides_border)
+        openpyxlplus.styles.boundaries_append_border(ws,1,1,2,2,three_sides_border)
+        openpyxlplus.styles.range_append_border(ws,"C1:D2",three_sides_border)
         for row in converter.rows_from_range("A1:D2"):
             for cell_address in row:
                 cell_border = ws[cell_address].border
@@ -118,8 +118,8 @@ class testAdvanced(unittest.TestCase):
         ws = wb.create_sheet("newsheet1")
         thin_side = Side(style="thin")
         # range_append_outline,boundaries_append_outline works for single cell
-        pyUtility.xlsx.styles.boundaries_append_outline(ws,1,1,1,1,thin_side)
-        pyUtility.xlsx.styles.range_append_outline(ws,"C1",thin_side)
+        openpyxlplus.styles.boundaries_append_outline(ws,1,1,1,1,thin_side)
+        openpyxlplus.styles.range_append_outline(ws,"C1",thin_side)
         for cell_address in ["A1","C1"]:
             cell_border = ws[cell_address].border
             self.assertEqual(cell_border.left.style,"thin")
@@ -130,8 +130,8 @@ class testAdvanced(unittest.TestCase):
         # range_append_outline,boundaries_append_outline works for more than
         # one cell
         ws = wb.create_sheet("newsheet2")
-        pyUtility.xlsx.styles.boundaries_append_outline(ws,1,1,3,3,thin_side)
-        pyUtility.xlsx.styles.range_append_outline(ws,"E1:G3",thin_side)
+        openpyxlplus.styles.boundaries_append_outline(ws,1,1,3,3,thin_side)
+        openpyxlplus.styles.range_append_outline(ws,"E1:G3",thin_side)
         for range_string in ["A1:C3","E1:G3"]:
             arr_list = []
             for row in converter.rows_from_range(range_string):
@@ -189,30 +189,30 @@ class testAdvanced(unittest.TestCase):
         ws = wb.active
         style_bold = NamedStyle("custom_bold",font=Font(bold=True))
         # range_apply_style, boundaries_apply_style works for single cell
-        pyUtility.xlsx.styles.boundaries_apply_style(ws,1,1,1,1,style_bold)
-        pyUtility.xlsx.styles.range_apply_style(ws,"A3",style_bold)
+        openpyxlplus.styles.boundaries_apply_style(ws,1,1,1,1,style_bold)
+        openpyxlplus.styles.range_apply_style(ws,"A3",style_bold)
         self.assertEqual(ws["A1"].font.b,True)
         self.assertEqual(ws["A3"].font.b,True)
 
         # range_apply_style, boundaries_apply_style works for more than one cell
         ws = wb.create_sheet("newsheet1")
-        pyUtility.xlsx.styles.boundaries_apply_style(ws,1,1,2,2,style_bold)
-        pyUtility.xlsx.styles.range_apply_style(ws,"C1:D2",style_bold)
+        openpyxlplus.styles.boundaries_apply_style(ws,1,1,2,2,style_bold)
+        openpyxlplus.styles.range_apply_style(ws,"C1:D2",style_bold)
         for row in converter.rows_from_range("A1:D2"):
             for cell_string in row:
                 self.assertEqual(ws[cell_string].font.b,True)
 
         # dataframe,list,array works
         # array
-        pyUtility.xlsx.styles.range_apply_style(
+        openpyxlplus.styles.range_apply_style(
             ws,"A1:B3",Array([style_bold]*6).reshape((3,2))
         )
         # dataframe
-        pyUtility.xlsx.styles.range_apply_style(
+        openpyxlplus.styles.range_apply_style(
             ws,"C1:D3",DataFrame({"x":[style_bold]*3,"y":[style_bold]*3})
         )
         # list
-        pyUtility.xlsx.styles.range_apply_style(
+        openpyxlplus.styles.range_apply_style(
             ws,"E1:F3",[[style_bold]*2,[style_bold]*2,[style_bold]*2]
         )
         for row in converter.rows_from_range("A1:F3"):
@@ -221,7 +221,7 @@ class testAdvanced(unittest.TestCase):
 
         # raise error if dimension incorrect
         with self.assertRaises(ValueError):
-            pyUtility.xlsx.styles.range_apply_style(
+            openpyxlplus.styles.range_apply_style(
             ws,"E1:F3",Array([style_bold]*6).reshape((2,3))
         )
 
@@ -235,7 +235,7 @@ class testAdvanced(unittest.TestCase):
         }
         ws = self.wb["test_column_width_1"]
         # adjust column width accordingly
-        pyUtility.xlsx.styles.adjust_column_width(ws,"A1:D2")
+        openpyxlplus.styles.adjust_column_width(ws,"A1:D2")
         self.assertEqual(
             ws.column_dimensions['A'].width,
             default_values["min_width"]
@@ -255,7 +255,7 @@ class testAdvanced(unittest.TestCase):
 
         # use specified range correctly, and igonres numbers
         ws = self.wb["test_column_width_2"]
-        pyUtility.xlsx.styles.adjust_column_width(ws,[1,1,2,10])
+        openpyxlplus.styles.adjust_column_width(ws,[1,1,2,10])
         for col in ["A","B","C","D"]:
             self.assertEqual(
                 ws.column_dimensions[col].width,

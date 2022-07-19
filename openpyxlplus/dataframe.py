@@ -168,7 +168,7 @@ def df_to_sheet_minimal(
     col_anchor: column number for top left corner of dataframe. minimum value is 1.
     
     Return:
-    pyUtility.xlsx.cell_range.TableRange object. It allows easier modification of
+    openpyxlplus.cell_range.TableRange object. It allows easier modification of
         values and styles after the data is written to the sheet
     """
     index_nlevels = df.index.nlevels if index else 0
@@ -224,7 +224,7 @@ def df_to_sheet_simple(
     style_axis: Which axis to apply styles to. 0 for rows, 1 for columns.
     
     Return:
-    pyUtility.xlsx.cell_range.TableRange object. It allows easier modification of
+    openpyxlplus.cell_range.TableRange object. It allows easier modification of
         values and styles after the data is written to the sheet
     """
     default_style = NamedStyle(name="Normal")

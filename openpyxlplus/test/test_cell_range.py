@@ -1,5 +1,5 @@
 import unittest
-from pyUtility.xlsx.cell_range import SheetCellRange,TableRange,Cells
+from openpyxlplus.cell_range import SheetCellRange,TableRange,Cells
 from openpyxl import load_workbook,Workbook
 from openpyxl.styles import Font,Border,Side
 import numpy as np

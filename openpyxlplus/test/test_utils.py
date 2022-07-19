@@ -1,5 +1,5 @@
 import unittest
-import pyUtility.xlsx.utils
+import openpyxlplus.utils
 from openpyxl import Workbook
 from numpy import array as Array
 from pandas import Series
@@ -7,7 +7,7 @@ from openpyxl import Workbook
 
 class testUtils(unittest.TestCase):
     def test_replicator(self):
-        replicator = pyUtility.xlsx.utils.auto_replicate
+        replicator = openpyxlplus.utils.auto_replicate
 
         case_groups = [
             {
@@ -41,10 +41,10 @@ class testUtils(unittest.TestCase):
             replicator([1,3],[1,3,5])
 
     def test_converter(self):
-        self.assertEqual(pyUtility.xlsx.utils.coord_to_address((1,1)),"A1")
+        self.assertEqual(openpyxlplus.utils.coord_to_address((1,1)),"A1")
 
         self.assertEqual(
-            pyUtility.xlsx.utils.boundaries_to_range(1,2,3,4),
+            openpyxlplus.utils.boundaries_to_range(1,2,3,4),
             "B1:D3"
         )
 
@@ -57,12 +57,12 @@ class testUtils(unittest.TestCase):
         ws["B2"] = 4
 
         # clear functions work
-        pyUtility.xlsx.utils.clear_range(ws,"A1:B1")
+        openpyxlplus.utils.clear_range(ws,"A1:B1")
         self.assertIsNone(ws["A1"].value)
         self.assertIsNone(ws["B1"].value)
         self.assertEqual(ws["A2"].value,2)
         self.assertEqual(ws["B2"].value,4)
 
-        pyUtility.xlsx.utils.clear_boundaries(ws,2,1,2,2)
+        openpyxlplus.utils.clear_boundaries(ws,2,1,2,2)
         self.assertIsNone(ws["A2"].value)
         self.assertIsNone(ws["B2"].value)
