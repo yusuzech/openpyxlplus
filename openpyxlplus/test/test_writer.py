@@ -100,81 +100,107 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(ws.cell(8,8).alignment.horizontal,"center")
         self.assertEqual(ws.cell(8,8).alignment.vertical,"center")
 
-class testWriteDataFrame(unittest.TestCase):
+
+class testWriteDataFrameSingleLevel(unittest.TestCase):
     def setUp(self):
-        self.df = pd.DataFrame({
-            "percent":[0.01,0.5,2],
-            "comma":[1000,500,1000000],
-            "mixed":["bold_red","centered","all_border"]
-        })
+        self.df = pd.DataFrame(
+            [[1,2,"a","b"],
+            [2,3,"b","c"],
+            [3,4,"c","d"]],
+            index=["row1","row2","row3"],
+            columns=["col1","col2","col3","col4"]
+        )
+
+        self.df_multilevel = self.df.groupby(["col3","col4"])\
+            .agg({"col1":["sum","mean"],"col2":["max","min"]})
         # initialize class-wise workbook
         self.wb = Workbook()
 
     def tearDown(self):
         self.wb.close()
 
+
     def test_anchor(self):
-        array_value = np.array(
-            [['percent', 'comma', 'mixed'],
-            [0.01, 1000, 'bold_red'],
-            [0.5, 500, 'centered'],
-            [2.0, 1000000, 'all_border']],dtype='O'
-        )
-        # at 2,2
-        self.wb.create_sheet("sheet1")
-        ws = self.wb["sheet1"]
-        writer.write_dataframe(
-            data = self.df,
-            ws = ws,
-            cell = ws.cell(2,2),
-            index = False,
-            header = True
-        )
-        self.assertTrue(is_range_equal_to_array(ws,"B2:D5",array_value))
+        pass
 
-        # at 10,3
-        self.wb.create_sheet("sheet2")
-        ws = self.wb["sheet2"]
-        writer.write_dataframe(
-            data = self.df,
-            ws = ws,
-            cell = ws.cell(11,3),
-            index=False,
-            header=True
-        ) 
-        self.assertTrue(is_range_equal_to_array(ws,"C11:E14",array_value))
 
-    def test_index_header(self):
-        # index and header
-        array_value = np.array(
-            [[None,'percent', 'comma', 'mixed'],
-            [None,None,None,None],
-            [0,0.01, 1000, 'bold_red'],
-            [1,0.5, 500, 'centered'],
-            [2,2.0, 1000000, 'all_border']]
-        )
-        self.wb.create_sheet("sheet3")
-        ws = self.wb["sheet3"]
-        writer.write_dataframe(
-            data = self.df,
-            ws = ws,
-            index=True,
-            header=True
-        ) 
-        self.assertTrue(is_range_equal_to_array(ws,"A1:D5",array_value))
-        # index
-        array_value = np.array(
-            [[None,"percent","comma","mixed"],
-            [0,0.01, 1000, 'bold_red'],
-            [1,0.5, 500, 'centered'],
-            [2,2.0, 1000000, 'all_border']],dtype="O"
-        )
-        self.wb.create_sheet("sheet3")
-        ws = self.wb["sheet3"]
-        writer.write_dataframe(
-            data = self.df,
-            ws = ws,
-            index=True,
-            header=False
-        )
-        self.assertTrue(is_range_equal_to_array(ws,"A1:D4",array_value))
+
+
+# class testWriteDataFrame(unittest.TestCase):
+#     def setUp(self):
+#         self.df = pd.DataFrame({
+#             "percent":[0.01,0.5,2],
+#             "comma":[1000,500,1000000],
+#             "mixed":["bold_red","centered","all_border"]
+#         })
+#         # initialize class-wise workbook
+#         self.wb = Workbook()
+
+#     def tearDown(self):
+#         self.wb.close()
+
+#     def test_anchor(self):
+#         array_value = np.array(
+#             [['percent', 'comma', 'mixed'],
+#             [0.01, 1000, 'bold_red'],
+#             [0.5, 500, 'centered'],
+#             [2.0, 1000000, 'all_border']],dtype='O'
+#         )
+#         # at 2,2
+#         self.wb.create_sheet("sheet1")
+#         ws = self.wb["sheet1"]
+#         writer.write_dataframe(
+#             data = self.df,
+#             ws = ws,
+#             cell = ws.cell(2,2),
+#             index = False,
+#             header = True
+#         )
+#         self.assertTrue(is_range_equal_to_array(ws,"B2:D5",array_value))
+
+#         # at 10,3
+#         self.wb.create_sheet("sheet2")
+#         ws = self.wb["sheet2"]
+#         writer.write_dataframe(
+#             data = self.df,
+#             ws = ws,
+#             cell = ws.cell(11,3),
+#             index=False,
+#             header=True
+#         ) 
+#         self.assertTrue(is_range_equal_to_array(ws,"C11:E14",array_value))
+
+#     def test_index_header(self):
+#         # index and header
+#         array_value = np.array(
+#             [[None,'percent', 'comma', 'mixed'],
+#             [None,None,None,None],
+#             [0,0.01, 1000, 'bold_red'],
+#             [1,0.5, 500, 'centered'],
+#             [2,2.0, 1000000, 'all_border']]
+#         )
+#         self.wb.create_sheet("sheet3")
+#         ws = self.wb["sheet3"]
+#         writer.write_dataframe(
+#             data = self.df,
+#             ws = ws,
+#             index=True,
+#             header=True
+#         ) 
+#         self.assertTrue(is_range_equal_to_array(ws,"A1:D5",array_value))
+#         # index
+#         array_value = np.array(
+#             [[None,"percent","comma","mixed"],
+#             [0,0.01, 1000, 'bold_red'],
+#             [1,0.5, 500, 'centered'],
+#             [2,2.0, 1000000, 'all_border']],dtype="O"
+#         )
+#         self.wb.create_sheet("sheet3")
+#         ws = self.wb["sheet3"]
+#         writer.write_dataframe(
+#             data = self.df,
+#             ws = ws,
+#             index=True,
+#             header=False
+#         )
+#         self.assertTrue(is_range_equal_to_array(ws,"A1:D4",array_value))

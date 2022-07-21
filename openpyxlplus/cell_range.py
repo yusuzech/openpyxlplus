@@ -105,7 +105,7 @@ class SheetCellRange(CellRange):
 
     def write(self,data,keep_style=True):
         """
-        Write data to this range.
+        Alias to self.set_value. Write data to this range.
 
         Parameters:
         data: scaler, list or numpy array. Note that the shape of data should 

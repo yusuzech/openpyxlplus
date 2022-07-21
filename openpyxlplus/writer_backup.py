@@ -158,18 +158,12 @@ def write_value_merged(
     rg.merge_cells()
     return(rg)
 
-def write_dataframe(
-        data,
-        ws,
-        cell=None,
-        index=True,
-        header=True,
-        keep_style=True,
-        merge_header=False,
-        merge_index=False
-    ):
+def write_dataframe(data,ws,cell=None,index=False,header=True,keep_style=True):
     """
     Write pandas data frame to range starting at provided cell.
+
+    Note: Bear in mind that openpyxl.utils.dataframe.dataframe_to_rows adds 
+    index name when index = True. This may cause confusion sometimes.
 
     Parameters:
     data: pandas dataframe.
@@ -184,75 +178,38 @@ def write_dataframe(
     Returns TableRange object, which allows modification to where the data is 
         written to.
     """
-    # separate tables to write into 3 parts: header, index and body
-    # write these 3 parts separtely
     if cell is None:
         cell = ws["A1"]
-    if index:
-        index_levels = len(data.index.names)
-        if index_levels == 1:
-            index_to_write = data.index.to_numpy().reshape((-1,1))
-        else:
-            index_to_write = np.array([list(x) for x in data.index.to_numpy()])
-    else:
-        index_to_write = None
-        index_levels = 0
-        
-    if header:
-        header_levels = len(data.columns.names)
-        if header_levels == 1:
-            header_to_write = data.columns.to_numpy().reshape((1,-1))
-        else:
-            header_to_write = np.array([list(x) for x in data.columns.to_numpy().tolist()]).transpose()
-    else:
-        header_to_write = None
-        header_levels = 0
-        
-    body_to_write = data.to_numpy()
-    
-    anchor_row_master, anchor_col_master = cell.row, cell.col_idx
-    anchor_row_index, anchor_col_index = cell.row, cell.col_idx
-    anchor_row_header, anchor_col_header =cell.row, cell.col_idx
-    anchor_row_body, anchor_col_body = cell.row, cell.col_idx
-    
-    if header:
-        anchor_row_index += header_levels
-        anchor_row_body +=  header_levels
-        
-    if index:
-        anchor_col_header += index_levels
-        anchor_col_body += index_levels
-        
-    if header:
-        write_array(
-            data = header_to_write,
-            ws = ws,
-            cell = ws.cell(anchor_row_header,anchor_col_header),
-            keep_style = keep_style
-        )
-        
-    if index:
-        write_array(
-            data = index_to_write,
-            ws = ws,
-            cell = ws.cell(anchor_row_index,anchor_col_index),
-            keep_style = keep_style
-        )
-        
-    write_array(
-        data = body_to_write,
-        ws = ws,
-        cell = ws.cell(anchor_row_body,anchor_col_body),
-        keep_style = keep_style
-    )
-    
+    index_nlevels = data.index.nlevels if index else 0
+    header_nlevels = data.columns.nlevels if header else 0
+
+    row_anchor = cell.row
+    col_anchor = cell.column
+
+    for i,row in enumerate(dataframe_to_rows(data,index=index,header=header)):
+        for j, cell in enumerate(row):
+            row_num = row_anchor + i
+            col_num = col_anchor + j
+            if keep_style:
+                from copy import copy
+                original_style = copy(ws.cell(row_num,col_num)._style)
+                ws.cell(row_num,col_num,value=cell)
+                ws.cell(row_num,col_num)._style = original_style
+            else:
+                ws.cell(row_num,col_num,value=cell)
+    # table range:
+    min_col = col_anchor
+    min_row = row_anchor
+    max_col = min_col + j
+    max_row = min_row + i
+    n_header = header_nlevels + int(index) if index else header_nlevels
     table_range = cell_range.TableRange(
         ws,
-        min_col=anchor_col_master,
-        min_row=anchor_row_master,
-        max_col=anchor_col_master + index_levels + body_to_write.shape[1] - 1, 
-        max_row=anchor_row_master + header_levels + body_to_write.shape[0] - 1,
-        n_index=index_levels,
-        n_header=header_levels
+        min_col=min_col,
+        min_row=min_row,
+        max_col=max_col, 
+        max_row=max_row,
+        n_index=index_nlevels,
+        n_header=n_header
     )
     return(table_range)

@@ -64,13 +64,12 @@ class TestSheetCellRange(unittest.TestCase):
 class TestTableRange(unittest.TestCase):
     def setUp(self):
         self.wb = load_workbook(current_folder +"/test_cell_range.xlsx")
-        # operations in this class does not save to workbook. So using wb.active 
-        # is okay.
-        self.ws = wb.active
+        self.ws = wb["Sheet1"]
     def tearDown(self):
         self.wb.close()
     
     def test_index_header(self):
+        ## Single level index and header
         # with index and header
         table_range1 = TableRange(ws,range_string="B2:G5",n_index=1,
             n_header=1)
@@ -93,6 +92,47 @@ class TestTableRange(unittest.TestCase):
         self.assertIsNone(table_range1.header)
         self.assertEqual(table_range1.index.coord,"B2:B5")
         self.assertEqual(table_range1.body.coord,"C2:G5")
+        self.assertIsNone(table_range1.top_left_corner)
+
+        # with no index and no header
+        table_range1 = TableRange(ws,range_string="B2:G5",n_index=0,
+            n_header=0)
+        self.assertIsNone(table_range1.header)
+        self.assertIsNone(table_range1.index)
+        self.assertEqual(table_range1.body.coord,"B2:G5")
+        self.assertIsNone(table_range1.top_left_corner)
+
+        ## Double level index and header
+        # with index and header
+        table_range1 = TableRange(ws,range_string="A1:G5",n_index=2,
+            n_header=2)
+        self.assertEqual(table_range1.header.coord,"C1:G2")
+        self.assertEqual(table_range1.index.coord,"A3:B5")
+        self.assertEqual(table_range1.body.coord,"C3:G5")
+        self.assertEqual(table_range1.top_left_corner.coord,"A1:B2")
+
+        # with header
+        table_range1 = TableRange(ws,range_string="C1:G5",n_index=0,
+            n_header=2)
+        self.assertEqual(table_range1.header.coord,"C1:G2")
+        self.assertIsNone(table_range1.index)
+        self.assertEqual(table_range1.body.coord,"C3:G5")
+        self.assertIsNone(table_range1.top_left_corner)
+
+        # with index
+        table_range1 = TableRange(ws,range_string="A3:G5",n_index=2,
+            n_header=0)
+        self.assertIsNone(table_range1.header)
+        self.assertEqual(table_range1.index.coord,"A3:B5")
+        self.assertEqual(table_range1.body.coord,"C3:G5")
+        self.assertIsNone(table_range1.top_left_corner)
+
+        # with no index and no header
+        table_range1 = TableRange(ws,range_string="C3:G5",n_index=0,
+            n_header=0)
+        self.assertIsNone(table_range1.header)
+        self.assertIsNone(table_range1.index)
+        self.assertEqual(table_range1.body.coord,"C3:G5")
         self.assertIsNone(table_range1.top_left_corner)
 
 class TestCells(unittest.TestCase):
