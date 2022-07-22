@@ -110,9 +110,23 @@ class testWriteDataFrameSingleLevel(unittest.TestCase):
             index=["row1","row2","row3"],
             columns=["col1","col2","col3","col4"]
         )
+        self.df_values = np.array([
+            [None,"col1","col2","col3","col4"],
+            ["row1", 1,     2,   "a",    "b" ],
+            ["row2", 2,     3,   "b",    "c" ],
+            ["row3", 3,     4,   "c",    "d" ]
+        ])
 
         self.df_multilevel = self.df.groupby(["col3","col4"])\
-            .agg({"col1":["sum","mean"],"col2":["max","min"]})
+            .agg({"col1":["sum","count"],"col2":["max","min"]})
+
+        self.df_multilevel_values = np.array([
+            [None,None,"col1","col1","col2","col2"],
+            [None,None,"sum","count", "max", "min"],
+            ["a", "b" ,   1,     1,      2,    2  ],
+            ["b", "c" ,   2,     1,      3,    3  ],
+            ["c", "d" ,   3,     1,      4,    4  ]
+        ])
         # initialize class-wise workbook
         self.wb = Workbook()
 
@@ -121,86 +135,40 @@ class testWriteDataFrameSingleLevel(unittest.TestCase):
 
 
     def test_anchor(self):
-        pass
+        ws = self.wb.create_sheet("1")
+        # default anchor at A1 works
+        writer.write_dataframe(self.df,ws)
+        self.assertTrue(is_range_equal_to_array(ws,"A1:E4",self.df_values))
+        # anchor works at selected cell
+        writer.write_dataframe(self.df,ws,ws["J5"])
+        self.assertTrue(is_range_equal_to_array(ws,"J5:N8",self.df_values))
 
+    def test_index_header(self):
+        ## Single level
+        ws = self.wb.create_sheet("2")
+        # index=True, header=True
+        writer.write_dataframe(self.df,ws,ws["B2"],index=True,header=True)
+        # index=True, header=False
+        writer.write_dataframe(self.df,ws,ws["H4"],index=True,header=False)
+        self.assertTrue(is_range_equal_to_array(ws,"H4:L6",self.df_values[1:,:]))
+        # index=False, header=True
+        writer.write_dataframe(self.df,ws,ws["C14"],index=False,header=True)
+        self.assertTrue(is_range_equal_to_array(ws,"C14:F17",self.df_values[:,1:]))
+        # index=False, header=False
+        writer.write_dataframe(self.df,ws,ws["K14"],index=False,header=False)
+        self.assertTrue(is_range_equal_to_array(ws,"K14:N16",self.df_values[1:,1:]))
 
-
-
-# class testWriteDataFrame(unittest.TestCase):
-#     def setUp(self):
-#         self.df = pd.DataFrame({
-#             "percent":[0.01,0.5,2],
-#             "comma":[1000,500,1000000],
-#             "mixed":["bold_red","centered","all_border"]
-#         })
-#         # initialize class-wise workbook
-#         self.wb = Workbook()
-
-#     def tearDown(self):
-#         self.wb.close()
-
-#     def test_anchor(self):
-#         array_value = np.array(
-#             [['percent', 'comma', 'mixed'],
-#             [0.01, 1000, 'bold_red'],
-#             [0.5, 500, 'centered'],
-#             [2.0, 1000000, 'all_border']],dtype='O'
-#         )
-#         # at 2,2
-#         self.wb.create_sheet("sheet1")
-#         ws = self.wb["sheet1"]
-#         writer.write_dataframe(
-#             data = self.df,
-#             ws = ws,
-#             cell = ws.cell(2,2),
-#             index = False,
-#             header = True
-#         )
-#         self.assertTrue(is_range_equal_to_array(ws,"B2:D5",array_value))
-
-#         # at 10,3
-#         self.wb.create_sheet("sheet2")
-#         ws = self.wb["sheet2"]
-#         writer.write_dataframe(
-#             data = self.df,
-#             ws = ws,
-#             cell = ws.cell(11,3),
-#             index=False,
-#             header=True
-#         ) 
-#         self.assertTrue(is_range_equal_to_array(ws,"C11:E14",array_value))
-
-#     def test_index_header(self):
-#         # index and header
-#         array_value = np.array(
-#             [[None,'percent', 'comma', 'mixed'],
-#             [None,None,None,None],
-#             [0,0.01, 1000, 'bold_red'],
-#             [1,0.5, 500, 'centered'],
-#             [2,2.0, 1000000, 'all_border']]
-#         )
-#         self.wb.create_sheet("sheet3")
-#         ws = self.wb["sheet3"]
-#         writer.write_dataframe(
-#             data = self.df,
-#             ws = ws,
-#             index=True,
-#             header=True
-#         ) 
-#         self.assertTrue(is_range_equal_to_array(ws,"A1:D5",array_value))
-#         # index
-#         array_value = np.array(
-#             [[None,"percent","comma","mixed"],
-#             [0,0.01, 1000, 'bold_red'],
-#             [1,0.5, 500, 'centered'],
-#             [2,2.0, 1000000, 'all_border']],dtype="O"
-#         )
-#         self.wb.create_sheet("sheet3")
-#         ws = self.wb["sheet3"]
-#         writer.write_dataframe(
-#             data = self.df,
-#             ws = ws,
-#             index=True,
-#             header=False
-#         )
-#         self.assertTrue(is_range_equal_to_array(ws,"A1:D4",array_value))
+        ## multi level
+        ws = self.wb.create_sheet("3")
+        # index=True, header=True
+        writer.write_dataframe(self.df_multilevel,ws,ws["B2"],index=True,header=True)
+        self.assertTrue(is_range_equal_to_array(ws,"B2:G6",self.df_multilevel_values))
+        # index=True, header=False
+        writer.write_dataframe(self.df_multilevel,ws,ws["H4"],index=True,header=False)
+        self.assertTrue(is_range_equal_to_array(ws,"H4:M6",self.df_multilevel_values[2:,:]))
+        # # index=False, header=True
+        writer.write_dataframe(self.df_multilevel,ws,ws["C14"],index=False,header=True)
+        self.assertTrue(is_range_equal_to_array(ws,"C14:F18",self.df_multilevel_values[:,2:]))
+        # # index=False, header=False
+        writer.write_dataframe(self.df_multilevel,ws,ws["K14"],index=False,header=False)
+        self.assertTrue(is_range_equal_to_array(ws,"K14:N16",self.df_multilevel_values[2:,2:]))

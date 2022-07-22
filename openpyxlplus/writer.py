@@ -193,7 +193,7 @@ def write_dataframe(
         if index_levels == 1:
             index_to_write = data.index.to_numpy().reshape((-1,1))
         else:
-            index_to_write = np.array([list(x) for x in data.index.to_numpy()])
+            index_to_write = array([list(x) for x in data.index.to_numpy()])
     else:
         index_to_write = None
         index_levels = 0
@@ -203,7 +203,7 @@ def write_dataframe(
         if header_levels == 1:
             header_to_write = data.columns.to_numpy().reshape((1,-1))
         else:
-            header_to_write = np.array([list(x) for x in data.columns.to_numpy().tolist()]).transpose()
+            header_to_write = array([list(x) for x in data.columns.to_numpy().tolist()]).transpose()
     else:
         header_to_write = None
         header_levels = 0

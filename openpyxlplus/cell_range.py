@@ -47,8 +47,8 @@ class SheetCellRange(CellRange):
         coordinate: coordinate of cell in sheet (row:int,column:int)
         relative: Default to True, uses coordinate relative to top left 
             coordinate of this cell range. Additionally, when relative = True, 
-            the coordinate start from 0. When relative = True, uses absolute 
-            coordinate in the sheet.
+            the coordinate start from 0. When relative = False, uses absolute 
+            coordinate in the sheet, which index starts from 0.
 
         Return:
         openpyxl.cell.cell.Cell object
@@ -360,8 +360,7 @@ class Cells(np.ndarray):
     def modify_style(self,style_name,style):
         """
         Modify cells' style with given style(s). This method adds style(s) to 
-        original one instead of completely overwriting it. If original style 
-        already exist, it will ignore that style.
+        original one instead of completely overwriting it.
         """
         v_setattr(self,style_name,v_getattr(self,style_name)+style)
         return(self)

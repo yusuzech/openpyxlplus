@@ -6,19 +6,18 @@ import numpy as np
 import os
 current_folder = os.path.dirname(__file__)
 wb = load_workbook(current_folder +"/test_cell_range.xlsx")
-ws = wb["Sheet1"]
 
 class TestSheetCellRange(unittest.TestCase):
     def setUp(self):
         self.wb = load_workbook(current_folder +"/test_cell_range.xlsx")
-        self.ws = wb.active
-        self.sheet_range = SheetCellRange(ws,range_string="B2:G5")
+        self.ws = wb["Sheet1"]
+        self.sheet_range = SheetCellRange(self.ws,range_string="B2:G5")
     def tearDown(self):
         self.wb.close()
 
     def test_construct(self):
         # construct using min/max col/row
-        range1 = SheetCellRange(ws,min_col=2,min_row=2,max_col=7,max_row=5)
+        range1 = SheetCellRange(self.ws,min_col=2,min_row=2,max_col=7,max_row=5)
         self.assertTrue(np.array_equal(
             range1.cells.get_value(),
             self.sheet_range.cells.get_value()
@@ -71,7 +70,7 @@ class TestTableRange(unittest.TestCase):
     def test_index_header(self):
         ## Single level index and header
         # with index and header
-        table_range1 = TableRange(ws,range_string="B2:G5",n_index=1,
+        table_range1 = TableRange(self.ws,range_string="B2:G5",n_index=1,
             n_header=1)
         self.assertEqual(table_range1.header.coord,"C2:G2")
         self.assertEqual(table_range1.index.coord,"B3:B5")
@@ -79,7 +78,7 @@ class TestTableRange(unittest.TestCase):
         self.assertEqual(table_range1.top_left_corner.coord,"B2")
 
         # with header
-        table_range1 = TableRange(ws,range_string="B2:G5",n_index=0,
+        table_range1 = TableRange(self.ws,range_string="B2:G5",n_index=0,
             n_header=1)
         self.assertEqual(table_range1.header.coord,"B2:G2")
         self.assertIsNone(table_range1.index)
@@ -87,7 +86,7 @@ class TestTableRange(unittest.TestCase):
         self.assertIsNone(table_range1.top_left_corner)
 
         # with index
-        table_range1 = TableRange(ws,range_string="B2:G5",n_index=1,
+        table_range1 = TableRange(self.ws,range_string="B2:G5",n_index=1,
             n_header=0)
         self.assertIsNone(table_range1.header)
         self.assertEqual(table_range1.index.coord,"B2:B5")
@@ -95,7 +94,7 @@ class TestTableRange(unittest.TestCase):
         self.assertIsNone(table_range1.top_left_corner)
 
         # with no index and no header
-        table_range1 = TableRange(ws,range_string="B2:G5",n_index=0,
+        table_range1 = TableRange(self.ws,range_string="B2:G5",n_index=0,
             n_header=0)
         self.assertIsNone(table_range1.header)
         self.assertIsNone(table_range1.index)
@@ -104,7 +103,7 @@ class TestTableRange(unittest.TestCase):
 
         ## Double level index and header
         # with index and header
-        table_range1 = TableRange(ws,range_string="A1:G5",n_index=2,
+        table_range1 = TableRange(self.ws,range_string="A1:G5",n_index=2,
             n_header=2)
         self.assertEqual(table_range1.header.coord,"C1:G2")
         self.assertEqual(table_range1.index.coord,"A3:B5")
@@ -112,7 +111,7 @@ class TestTableRange(unittest.TestCase):
         self.assertEqual(table_range1.top_left_corner.coord,"A1:B2")
 
         # with header
-        table_range1 = TableRange(ws,range_string="C1:G5",n_index=0,
+        table_range1 = TableRange(self.ws,range_string="C1:G5",n_index=0,
             n_header=2)
         self.assertEqual(table_range1.header.coord,"C1:G2")
         self.assertIsNone(table_range1.index)
@@ -120,7 +119,7 @@ class TestTableRange(unittest.TestCase):
         self.assertIsNone(table_range1.top_left_corner)
 
         # with index
-        table_range1 = TableRange(ws,range_string="A3:G5",n_index=2,
+        table_range1 = TableRange(self.ws,range_string="A3:G5",n_index=2,
             n_header=0)
         self.assertIsNone(table_range1.header)
         self.assertEqual(table_range1.index.coord,"A3:B5")
@@ -128,7 +127,7 @@ class TestTableRange(unittest.TestCase):
         self.assertIsNone(table_range1.top_left_corner)
 
         # with no index and no header
-        table_range1 = TableRange(ws,range_string="C3:G5",n_index=0,
+        table_range1 = TableRange(self.ws,range_string="C3:G5",n_index=0,
             n_header=0)
         self.assertIsNone(table_range1.header)
         self.assertIsNone(table_range1.index)
