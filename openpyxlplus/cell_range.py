@@ -114,8 +114,8 @@ class SheetCellRange(CellRange):
             col_min = min_col_idx if min_col_idx else ""
             col_max =  max_col_idx if max_col_idx else ""
             slice_string = f"{row_min}:{row_max},{col_min}:{col_max}"
-        # sanitize input
-        slice_string = re.sub("[^0-9-,:]","",slice_string)
+
+        slice_string = re.sub("[^0-9-,:]","",slice_string) # sanitize input
         ret = eval(f"self.cells[{slice_string}]").to_range()
         return(ret)
 
