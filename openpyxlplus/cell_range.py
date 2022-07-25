@@ -348,22 +348,6 @@ class Cells(np.ndarray):
         ret = SheetCellRange(ws, range_string=range_string, min_col=min_col, 
             min_row=min_row, max_col=max_col, max_row=max_row, title=title).cells
         return(ret)
-    
-    def to_range(self):
-        """
-        Convert current cells to SheetCellRange with top left cell in Cells as
-        first cell and bottom right cell as last cell
-
-        Return:
-        SheetCellRange object
-        """
-        top_left = self[0,0]
-        bottom_right = self[-1,-1]
-        ret = SheetCellRange(
-            ws=top_left.parent,
-            range_string=f"{top_left.coordinate}:{bottom_right.coordinate}"
-        )
-        return(ret)
 
     def get_style(self,style_name):
         """
@@ -460,6 +444,8 @@ class Cells(np.ndarray):
             ws,f"{top_left.coordinate}:{bottom_right.coordinate}"
         )
         return(ret)
+    
+    to_range = get_range
 
     def side(self,direction,n):
         """

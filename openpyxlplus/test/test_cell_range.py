@@ -83,7 +83,7 @@ class TestSheetCellRange(unittest.TestCase):
             rg.get_subset(min_col_idx=1,max_row_idx=-1).coord,
             "B1:E4"
         )
-        
+
     def test_clear(self):
         ws = wb["Clear"]
         # only clear value, preserve style
@@ -308,9 +308,6 @@ class TestCells(unittest.TestCase):
         self.assertNotEqual(ws["B1"].fill.start_color.rgb,"FFFFFF00") 
         self.assertTrue("rgb" not in ws["B1"].font.color.__dict__) # font color not set (default)
 
-    def test_get_range(self):
-        self.assertEqual(self.cells.get_range().coord,"B2:G5")
-
     def test_side(self):
         # head
         self.assertTrue(np.array_equal(
@@ -422,7 +419,8 @@ class TestCells(unittest.TestCase):
         self.assertTrue(np.array_equal(
             SheetCellRange(ws,"B2:D5").cells[:,1].get_value(),
             np.array(["test",1,2,3],dtype="O")
-        ))       
+        ))
+        # can write with 2D array
         self.assertTrue(np.array_equal(
             SheetCellRange(ws,"C2:C5").cells.get_value(),
             np.array([["test"],[1],[2],[3]],dtype="O")
@@ -432,3 +430,4 @@ class TestCells(unittest.TestCase):
         ws = wb.active
         rg = SheetCellRange(ws,"A1:E5")
         self.assertEqual(rg.cells[3:,3:].to_range().coord,"D4:E5")
+        self.assertEqual(rg.cells[3:,3:].get_range().coord,"D4:E5") # alias
