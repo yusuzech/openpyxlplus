@@ -1,8 +1,10 @@
 from openpyxl.worksheet.cell_range import CellRange
+from pytest import console_main
 from openpyxlplus.utils import open_workbook
 from openpyxl.styles import Border,Side
 import numpy as np
 from copy import copy
+import re
 
 def getattr_copy(obj,name,*args):
     if len(args) > 0:
@@ -68,8 +70,8 @@ class SheetCellRange(CellRange):
         will the same shape as shape of coordinates
 
         Parameters:
-        coordinates: list/tuple or numpy.ndarray which contains coordinate with 
-            format of (row:int,column:int)
+        coordinates: list/tuple or numpy.ndarray which contains coordinate tuple 
+         with format of (row:int,column:int)
         relative: whether the coordinates are relative to range. See details in
             .get_cells method
 
@@ -88,6 +90,49 @@ class SheetCellRange(CellRange):
         except:
             ret = Cells([self.get_cell(x,relative) for x in coordinates])
         return(ret)
+
+    def get_subset(
+        self,
+        slice_string=None,
+        min_col_idx=None,
+        min_row_idx=None,
+        max_col_idx=None,
+        max_row_idx=None
+    ):
+        """
+        Subsetting range by either a slicing string(numpy style) or providing
+        min/max of column/row index.
+
+        Parameters:
+        sliece_string: a numpy style subsetting string such as "1:,:-2"
+        min_col_idx, min_row_idx, max_col_ids, max_row_idx: min/max index for 
+            rows and column. index starting from 0.
+        """
+        if slice_string is None:
+            row_min = min_row_idx if min_row_idx else ""
+            row_max = max_row_idx if max_row_idx else ""
+            col_min = min_col_idx if min_col_idx else ""
+            col_max =  max_col_idx if max_col_idx else ""
+            slice_string = f"{row_min}:{row_max},{col_min}:{col_max}"
+        # sanitize input
+        slice_string = re.sub("[^0-9-,:]","",slice_string)
+        ret = eval(f"self.cells[{slice_string}]").to_range()
+        return(ret)
+
+    def clear(self,value=True,formatting=True):
+        """
+        Clear value/formatting in range
+
+        Parameters:
+        value: default True, clear values
+        formatting: default True, clear formatting
+        """
+        if value:
+            self.write(None,keep_style=True)
+
+        if formatting:
+            self.cells.set_style("style","Normal")
+        return(self)
 
     def merge_cells(self):
         """
@@ -380,14 +425,23 @@ class Cells(np.ndarray):
         Parameters:
         value: value to write to cells.Note that the shape of data should 
             match the shape of range to ensure writing correctly.
-        keep_style: whether to preserve original style
+        keep_style: whether to preserve original style. If set to False, clear
+            original style.
         """
+        # # 0.5.0 keep style manually
+        # if keep_style:
+        #     original_style = self.get_style("_style")
+        #     v_setattr(self,"value",value)
+        #     self.set_style("_style",original_style)
+        # else:
+        #     v_setattr(self,"value",value)
+
+        # 0.5.1 keep style automatically
         if keep_style:
-            original_style = self.get_style("_style")
             v_setattr(self,"value",value)
-            self.set_style("_style",original_style)
         else:
             v_setattr(self,"value",value)
+            self.set_style("style","Normal")
         return(self)
 
     def get_range(self):

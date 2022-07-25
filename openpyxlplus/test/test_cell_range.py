@@ -60,6 +60,49 @@ class TestSheetCellRange(unittest.TestCase):
             np.array([1,2])
         ))
 
+    def test_get_subset(self):
+        wb = Workbook()
+        ws = wb.active
+        rg = SheetCellRange(ws,"A1:E5")
+        
+        # use slice
+        self.assertEqual(rg.get_subset("2:,:").coord,"A3:E5") # positive index
+        self.assertEqual(rg.get_subset(":,3:").coord,"D1:E5") # positive index
+        self.assertEqual(rg.get_subset(":-1,:-1").coord,"A1:D4") # negative index
+
+        # use index
+        # works with full index provided
+        self.assertEqual(
+            rg.get_subset(min_col_idx=1,max_col_idx=4,min_row_idx=1,max_row_idx=4)\
+                .coord,
+            "B2:D4"
+        )
+
+        # works with partial index provided
+        self.assertEqual(
+            rg.get_subset(min_col_idx=1,max_row_idx=-1).coord,
+            "B1:E4"
+        )
+        
+    def test_clear(self):
+        ws = wb["Clear"]
+        # only clear value, preserve style
+        rg = SheetCellRange(ws,"A1").clear(formatting=False)
+        current_cell = rg.get_cell((0,0))
+        self.assertIsNone(current_cell.value)
+        self.assertEqual(current_cell.font.b,True)
+        self.assertEqual(current_cell.fill.start_color.rgb,"FFFFFF00") # backgournd yellow
+        self.assertEqual(current_cell.font.color.rgb,"FFFF0000") # font red
+
+        # only clear formatting, keep value
+        rg = SheetCellRange(ws,"B1").clear(value=False)
+        current_cell = rg.get_cell((0,0))
+        self.assertEqual(current_cell.value,"color,bold,fill")
+        self.assertEqual(ws["B1"].font.b,False)
+        self.assertNotEqual(ws["B1"].fill.start_color.rgb,"FFFFFF00") 
+        self.assertTrue("rgb" not in ws["B1"].font.color.__dict__) 
+
+
 class TestTableRange(unittest.TestCase):
     def setUp(self):
         self.wb = load_workbook(current_folder +"/test_cell_range.xlsx")
@@ -255,12 +298,15 @@ class TestCells(unittest.TestCase):
     def test_set_value_preserve_style(self):
         ws = wb["DefaultStyle"]
         # default to preserve style
-        SheetCellRange(ws,"B1").cells.set_value(1)
-        self.assertEqual(ws["B1"].font.b,True)
-
+        SheetCellRange(ws,"A1").cells.set_value(1)
+        self.assertEqual(ws["A1"].font.b,True)
+        self.assertEqual(ws["A1"].fill.start_color.rgb,"FFFFFF00") # backgournd yellow
+        self.assertEqual(ws["A1"].font.color.rgb,"FFFF0000") # font red
         # disable preserve style
-        SheetCellRange(ws,"B2").cells.set_value(1,keep_style=False)
-        self.assertEqual(ws["B2"].font.b,False)
+        SheetCellRange(ws,"B1").cells.set_value(1,keep_style=False)
+        self.assertEqual(ws["B1"].font.b,False)
+        self.assertNotEqual(ws["B1"].fill.start_color.rgb,"FFFFFF00") 
+        self.assertTrue("rgb" not in ws["B1"].font.color.__dict__) # font color not set (default)
 
     def test_get_range(self):
         self.assertEqual(self.cells.get_range().coord,"B2:G5")
