@@ -1,5 +1,4 @@
 from openpyxlplus import cell_range
-from openpyxl.utils.dataframe import dataframe_to_rows
 from numpy import ndarray,array,newaxis
 from openpyxl.styles import Alignment
 
@@ -222,7 +221,8 @@ def write_dataframe(
     if index:
         anchor_col_header += index_levels
         anchor_col_body += index_levels
-        
+    
+    # write header if provided
     if header:
         write_array(
             data = header_to_write,
@@ -230,7 +230,8 @@ def write_dataframe(
             cell = ws.cell(anchor_row_header,anchor_col_header),
             keep_style = keep_style
         )
-        
+    
+    # write index if provided
     if index:
         write_array(
             data = index_to_write,
@@ -238,7 +239,8 @@ def write_dataframe(
             cell = ws.cell(anchor_row_index,anchor_col_index),
             keep_style = keep_style
         )
-        
+
+    # write body
     write_array(
         data = body_to_write,
         ws = ws,
@@ -246,6 +248,7 @@ def write_dataframe(
         keep_style = keep_style
     )
     
+    # create TableRange object
     table_range = cell_range.TableRange(
         ws,
         min_col=anchor_col_master,

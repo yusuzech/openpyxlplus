@@ -1,6 +1,5 @@
 from openpyxl.worksheet.cell_range import CellRange
-from pytest import console_main
-from openpyxlplus.utils import open_workbook
+from .utils import open_workbook
 from openpyxl.styles import Border,Side
 import numpy as np
 from copy import copy
