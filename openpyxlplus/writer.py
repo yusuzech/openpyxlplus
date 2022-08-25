@@ -224,21 +224,27 @@ def write_dataframe(
     
     # write header if provided
     if header:
-        write_array(
+        rg = write_array(
             data = header_to_write,
             ws = ws,
             cell = ws.cell(anchor_row_header,anchor_col_header),
             keep_style = keep_style
         )
+
+        if merge_header:
+            _merge_consecutive_cells(rg.cells,on="row")
     
     # write index if provided
     if index:
-        write_array(
+        rg = write_array(
             data = index_to_write,
             ws = ws,
             cell = ws.cell(anchor_row_index,anchor_col_index),
             keep_style = keep_style
         )
+
+        if merge_index:
+            _merge_consecutive_cells(rg.cells,on="column")
 
     # write body
     write_array(
@@ -259,3 +265,38 @@ def write_dataframe(
         n_header=header_levels
     )
     return(table_range)
+
+
+def _merge_consecutive_cells(cells,on="row"):
+    """
+    Merge consecutive cells or columns
+    Note: Unit Test not added for this function
+    """
+    if on == "row":
+        temp = cells
+    elif on == "column":
+        temp = cells.transpose()
+    else:
+        raise Exception(f"{on} not supported.")
+    groups = []
+    for row in temp:
+        g = []
+        for cell in row:
+            if len(g) == 0:
+                g.append(cell)
+            else:
+                if cell.value == g[-1].value:
+                    g.append(cell)
+                else:
+                    groups.append(g)
+                    g = [cell]
+        groups.append(g)
+
+    for g in groups:
+        if len(g) > 1:
+            rg = cell_range.Cells(g).to_range()
+            rg.cells.set_style(
+                "alignment",
+                Alignment(horizontal='center',vertical="center")
+            )
+            rg.merge_cells()

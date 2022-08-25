@@ -4,6 +4,7 @@ from openpyxl.styles import Border,Side
 import numpy as np
 from copy import copy
 import re
+import openpyxl.utils.cell as converter
 
 def getattr_copy(obj,name,*args):
     if len(args) > 0:
@@ -200,19 +201,19 @@ class SheetCellRange(CellRange):
         for col_coord in self.cols:
             col_max_length = max_length
             lengths = []
+
             for cell_coord in col_coord:
                 cell = self.ws.cell(*cell_coord)
-                if cell.coordinate in self.ws.merged_cells: # not check merged cells
-                        continue
+                # if cell.coordinate in self.ws.merged_cells: # not check merged cells
+                #         continue
                 if cell.value:
                     lengths.append(len(str(cell.value)))
                 else:
                     lengths.append(0)
             # set column width
             cell_max_length = max(lengths)
-            length = col_max_length if cell_max_length > col_max_length \
-                else cell_max_length
-            self.ws.column_dimensions[cell.column_letter].width = \
+            length = col_max_length if cell_max_length > col_max_length else cell_max_length
+            self.ws.column_dimensions[converter.get_column_letter(cell.column)].width = \
                 (length + 2) * multiplier
         return(self)
 
