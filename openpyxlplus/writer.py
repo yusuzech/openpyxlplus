@@ -150,7 +150,7 @@ def write_value_merged(
     rg.expand(right=right,down=down,left=left,up=up)
     rg.cells.set_value(data)
     if center:
-        rg.cells.set_style(
+        rg.cells.modify_style(
             "alignment",
             Alignment(horizontal='center',vertical="center")
         )
@@ -232,7 +232,7 @@ def write_dataframe(
         )
 
         if merge_header:
-            _merge_consecutive_cells(rg.cells,on="row")
+            _merge_consecutive_cells(rg,on="row")
     
     # write index if provided
     if index:
@@ -244,7 +244,7 @@ def write_dataframe(
         )
 
         if merge_index:
-            _merge_consecutive_cells(rg.cells,on="column")
+            _merge_consecutive_cells(rg,on="column")
 
     # write body
     write_array(
@@ -267,15 +267,20 @@ def write_dataframe(
     return(table_range)
 
 
-def _merge_consecutive_cells(cells,on="row"):
+def _merge_consecutive_cells(rg,on="row",center=True):
     """
-    Merge consecutive cells or columns
-    Note: Unit Test not added for this function
+    Merge consecutive cells by rows or by columns
+
+    Parameters:
+    rg: openpyxlplus.cell_range.SheetCellRange
+    on: "row" or "column". "row" to merge horizontally (same columns are merged);
+        "column" to merge vertically (different columns are merged)
+    center: True to center merged cells.
     """
     if on == "row":
-        temp = cells
+        temp = rg.cells
     elif on == "column":
-        temp = cells.transpose()
+        temp = rg.cells.transpose()
     else:
         raise Exception(f"{on} not supported.")
     groups = []
@@ -294,9 +299,11 @@ def _merge_consecutive_cells(cells,on="row"):
 
     for g in groups:
         if len(g) > 1:
-            rg = cell_range.Cells(g).to_range()
-            rg.cells.set_style(
-                "alignment",
-                Alignment(horizontal='center',vertical="center")
-            )
-            rg.merge_cells()
+            rg_temp = cell_range.Cells(g).to_range()
+            if center:
+                rg_temp.cells.modify_style(
+                    "alignment",
+                    Alignment(horizontal='center',vertical="center")
+                )
+            rg_temp.merge_cells()
+    return(rg)

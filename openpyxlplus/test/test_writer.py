@@ -172,3 +172,78 @@ class testWriteDataFrameSingleLevel(unittest.TestCase):
         # # index=False, header=False
         writer.write_dataframe(self.df_multilevel,ws,ws["K14"],index=False,header=False)
         self.assertTrue(is_range_equal_to_array(ws,"K14:N16",self.df_multilevel_values[2:,2:]))
+
+
+class testUtils(unittest.TestCase):
+    def setUp(self):
+        self.wb = Workbook()
+
+    def tearDown(self):
+        self.wb.close()
+
+    def test__merge_consecutive_cells(self):
+        wb = Workbook()
+        ws = wb.active
+        array = [
+            [1,1,2,3],
+            [1,2,2,3],
+            [3,2,3,3]
+        ]
+        # merged cells other than the first one (top left) has value of None.
+        # the styles of merged cells are stored in the first cell (top left)
+
+        # default on row, center=True
+        rg = writer.write_array(array,ws,cell=ws.cell(1,1))
+        writer._merge_consecutive_cells(rg)
+
+        self.assertTrue(np.array_equal(
+            rg.cell_values,
+            [
+                [1,None,2,3],
+                [1,2,None,3],
+                [3,2,3,None]
+            ]
+        ))
+
+        self.assertTrue(np.array_equal(
+            rg.cells.get_style_detail("alignment",["horizontal"]),
+            [
+                ['center',None,None,None],
+                [None,'center',None,None],
+                [None,None,'center',None]
+            ]
+        ))
+
+        self.assertTrue(np.array_equal(
+            rg.cells.get_style_detail("alignment","vertical"),
+            [
+                ['center',None,None,None],
+                [None,'center',None,None],
+                [None,None,'center',None]
+            ]
+        ))
+
+        # on column, center=False
+        rg = writer.write_array(array,ws,cell=ws.cell(7,1))
+        writer._merge_consecutive_cells(rg,on="column",center=False)
+
+
+        self.assertTrue(np.array_equal(
+            rg.cell_values,
+            [
+                [1,1,2,3],
+                [None,2,None,None],
+                [3,None,3,None]
+            ]
+        ))
+
+        self.assertTrue(all(
+            rg.cells.get_style_detail("alignment","vertical").flatten() == None
+        ))
+
+        self.assertTrue(all(
+            rg.cells.get_style_detail("alignment","horizontal").flatten() == None
+        ))
+
+        wb.close()
+        

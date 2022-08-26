@@ -1,5 +1,5 @@
 from openpyxl.worksheet.cell_range import CellRange
-from .utils import open_workbook
+from . import utils
 from openpyxl.styles import Border,Side
 import numpy as np
 from copy import copy
@@ -183,38 +183,83 @@ class SheetCellRange(CellRange):
         """
         return(self.cells.get_value())
 
-    def autofit_width(self,max_width=None,multiplier=1.2):
+    # def autofit_width(self,max_width=None,multiplier=1.2):
+    #     """
+    #     Automatically fit column width with current cell range by detecting number 
+    #         of characters in each cell. 
+
+    #     Parameters:
+    #     max_width: maximum column width
+    #     multiplier: increase or reduce column width globally in current range. 
+    #         This value may be adjusted for better view.
+
+    #     Return:
+    #     self
+    #     """     
+    #     max_length = ((max_width if max_width else 999) - 2)/multiplier
+
+    #     for col_coord in self.cols:
+    #         col_max_length = max_length
+    #         lengths = []
+
+    #         for cell_coord in col_coord:
+    #             cell = self.ws.cell(*cell_coord)
+    #             if cell.value:
+    #                 lengths.append(len(str(cell.value)))
+    #             else:
+    #                 lengths.append(0)
+    #         # set column width
+    #         cell_max_length = max(lengths)
+    #         length = col_max_length if cell_max_length > col_max_length else cell_max_length
+    #         self.ws.column_dimensions[converter.get_column_letter(cell.column)].width = \
+    #             int((length + 2) * multiplier)
+    #     return(self)
+
+    def autosize(
+        self,
+        adjust_width=True,
+        adjust_height=True,
+        **kwargs
+    ):
         """
-        Automatically fit column width in current worksheet by detecting number 
-            of characters in each cell. 
+        Automatically adjust sheet width and height using given range. Based on
+        number of characters in each cell and width/height factor.
+
+        Check openpyxlplus.utils.calc_value_size for more details.
 
         Parameters:
-        max_width: maximum column width
-        multiplier: increase or reduce column width globally in current range. 
-            This value may be adjusted for better view.
+        adjust_width: True/False. If False, won't adjust width
+        adjust_height: True/False. If False, won't adjust height
 
-        Return:
-        self
+        Below are kwargs:
+        min_width, min_height, max_width, max_height, width_factor, height_factor, max_ndigits, wrap_text
+
         """
-        max_length = ((max_width if max_width else 999) - 2)/multiplier
+        cells = self.cells
+        cell_values = cells.get_value()
+        fontsizes = cells.get_style_detail("font","size")
 
-        for col_coord in self.cols:
-            col_max_length = max_length
-            lengths = []
+        heights = np.zeros_like(cell_values)
+        widths = np.zeros_like(cell_values)
+        for ind,v in np.ndenumerate(cell_values):
+            ftsize = fontsizes[ind]
+            h,w = utils.calc_value_size(v,fontsize=ftsize,**kwargs)
+            heights[ind] = h
+            widths[ind] = w
+        # print(heights)
+        # print(widths)
 
-            for cell_coord in col_coord:
-                cell = self.ws.cell(*cell_coord)
-                # if cell.coordinate in self.ws.merged_cells: # not check merged cells
-                #         continue
-                if cell.value:
-                    lengths.append(len(str(cell.value)))
-                else:
-                    lengths.append(0)
-            # set column width
-            cell_max_length = max(lengths)
-            length = col_max_length if cell_max_length > col_max_length else cell_max_length
-            self.ws.column_dimensions[converter.get_column_letter(cell.column)].width = \
-                (length + 2) * multiplier
+        if adjust_width:
+            column_widths = widths.max(axis=0)
+            column_letters = [converter.get_column_letter(x.column) for x in cells[0,:]]
+            for column_letter,column_width in zip(column_letters,column_widths):
+                self.ws.column_dimensions[column_letter].width = column_width
+        if adjust_height:
+            row_heights = heights.max(axis=1)
+            row_numbers = [x.row for x in cells[:,0]]
+            for row_number,row_height in zip(row_numbers,row_heights):
+                self.ws.row_dimensions[row_number].height = row_height
+
         return(self)
 
     def show_in_excel(self,temp_name="temp.xlsx"):
@@ -224,7 +269,7 @@ class SheetCellRange(CellRange):
         Parameters:
         temp_name: temporary file name. Default to "temp.xlsx"
         """
-        _ , workbook = open_workbook(self.ws.parent,temp_name=temp_name
+        _ , workbook = utils.open_workbook(self.ws.parent,temp_name=temp_name
             ,prompt=False)
 
         ws = workbook.Sheets(self.ws.title)

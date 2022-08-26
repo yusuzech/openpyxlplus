@@ -1,5 +1,6 @@
 import unittest
 from openpyxlplus.cell_range import SheetCellRange,TableRange,Cells
+from openpyxlplus import writer
 from openpyxl import load_workbook,Workbook
 from openpyxl.styles import Font,Border,Side
 import numpy as np
@@ -100,7 +101,42 @@ class TestSheetCellRange(unittest.TestCase):
         self.assertEqual(current_cell.value,"color,bold,fill")
         self.assertEqual(ws["B1"].font.b,False)
         self.assertNotEqual(ws["B1"].fill.start_color.rgb,"FFFFFF00") 
-        self.assertTrue("rgb" not in ws["B1"].font.color.__dict__) 
+        self.assertTrue("rgb" not in ws["B1"].font.color.__dict__)
+
+    def test_autosize(self):
+        wb = Workbook()
+        ws = wb.active
+        array = [
+            [    "123\n123"     ,  "1\n1"  ,  ""  , "123456"],
+            [        "1"        , "12\n12" ,  ""  ,    ""   ],
+            [        ""         ,    ""    ,  ""  ,    ""   ],
+            ["1\n1\n1\n1\n1\n1" ,     ""   ,  ""  ,    ""   ]
+        ]
+        fontsize = 1
+        rg = writer.write_array(array,ws)
+        rg.cells.set_style("font",Font(size=fontsize))
+        rg.autosize(
+            wrap_text=True,
+            min_width = 1 * fontsize,
+            min_height = 1 * fontsize,
+            max_width= 5 * fontsize,
+            max_height = 5 * fontsize,
+            width_factor = 1,
+            height_factor = 1
+        )
+        # column A,B,C,D
+        self.assertListEqual(
+            [int(ws.column_dimensions[x].width) for x in ["A","B","C","D"]],
+            [3,2,1,5]
+        )
+
+        # row 1,2,3,4
+        self.assertListEqual(
+            [int(ws.row_dimensions[x].height) for x in [1,2,3,4]],
+            [2,2,1,5]
+        )
+        wb.close()
+
 
 
 class TestTableRange(unittest.TestCase):

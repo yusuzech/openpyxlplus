@@ -1,3 +1,4 @@
+from numpy import number
 def open_workbook(wb,temp_name="temp.xlsx",prompt=True):
     """
     Open the workbook object, only works in windows. It works by saving the 
@@ -23,6 +24,111 @@ def open_workbook(wb,temp_name="temp.xlsx",prompt=True):
     else:
         # return excel object and workbook for futher operations
         return(excel,wb)
+
+
+def calc_value_shape(value,wrap_text=False,ndigits=2):
+    """
+    Get number of characters in longest line and number of lines
+
+    If type(value) is numeric:
+        round the number to given digits and then convert it text
+
+    If wrap_text == True:
+        split by "\n" to get number of lines
+        n_horizontal: number of characters in longest line
+        n_vertical: number of lines
+
+    If wrap_text == False:
+        n_horizontal: number of chracters
+        n_vertical: 1
+
+    Parameters:
+    value: any value, converted to text to get text length
+    wrap_text: whether to count lines (split by "\n")
+    ndigits: number of digits to round number to.
+
+    Return:
+    (n_vertical,n_horizontal)
+    """
+    if isinstance(value,(number,int,float)):
+        text = str(round(value,ndigits))
+    else:
+        text = str(value)
+
+    if wrap_text:
+        lines = text.split("\n")
+        n_horizontal = max([len(x) for x in lines])
+        n_vertical = len(lines)
+    else:
+        n_horizontal = len(text)
+        n_vertical = 1
+    return((n_vertical,n_horizontal))
+
+def calc_value_size(
+        value,
+        wrap_text=False,
+        min_width=1.43,
+        min_height=13.2,
+        max_width=255,
+        max_height=409,
+        width_factor=0.13,
+        height_factor=1.2,
+        ndigits=2,
+        fontsize=11,
+    ):
+    """
+    Based on text and width/height factor, calculate width and height.
+
+    If wrap_text == False:
+    width = fontsize * width factor * number of characters
+    height = fontsize * height factor * 1
+
+    If wrap_text = True and newline("\n") present in cell text:
+    width = fontsize * width factor * number of characters in longest line
+    height = fontsize * height factor * number of lines
+
+    Parameters:
+    wrap_text: wrap text
+    min_width: width won't be below this number
+    min_height: height won't be below this number
+    max_width: width won't be above this number
+    max_height: height won't be above this number
+    width_factor: ideally number around default (found empirically)
+    height_factor: ideally number around default (found empirically)
+    max_ndigits: For numerical data, use rounded number to ndigits
+    ndigits: number of digits (after decimal points) used for calculating width
+    fontsize: fontsize of characters in cell
+
+    Return:
+    (height,width)
+    """
+    n_verical, n_horizontal = calc_value_shape(value,wrap_text=wrap_text,ndigits=ndigits)
+    
+    # height
+    height = n_verical * height_factor * fontsize
+    if height <= min_height:
+        height = min_height
+    elif height > min_height and height <= max_height:
+        pass
+    elif height > max_height:
+        height = max_height
+    else:
+        raise Exception(f"wrong value for height: {height}")
+
+    # width
+    width = n_horizontal * width_factor * fontsize
+    if width <= min_width:
+        width = min_width
+    elif width > min_width and width <= max_width:
+        pass
+    elif width > max_width:
+        width = max_width
+    else:
+        raise Exception(f"wrong value for width: {width}")
+    
+    return((height,width))
+
+    
 
 # codes below will be removed upon release. #
 # import openpyxl.utils.cell as converter
