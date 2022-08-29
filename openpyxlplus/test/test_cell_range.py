@@ -103,6 +103,72 @@ class TestSheetCellRange(unittest.TestCase):
         self.assertNotEqual(ws["B1"].fill.start_color.rgb,"FFFFFF00") 
         self.assertTrue("rgb" not in ws["B1"].font.color.__dict__)
 
+    def test_merge_consecutive_cells(self):
+            wb = Workbook()
+            ws = wb.active
+            array = [
+                [1,1,2,3],
+                [1,2,2,3],
+                [3,2,3,3]
+            ]
+            # merged cells other than the first one (top left) has value of None.
+            # the styles of merged cells are stored in the first cell (top left)
+
+            # default on row, center=True
+            rg = SheetCellRange(ws,range_string="A1:D3").write(array)
+            rg.merge_consecutive_cells()
+
+            self.assertTrue(np.array_equal(
+                rg.cell_values,
+                [
+                    [1,None,2,3],
+                    [1,2,None,3],
+                    [3,2,3,None]
+                ]
+            ))
+
+            self.assertTrue(np.array_equal(
+                rg.cells.get_style_detail("alignment",["horizontal"]),
+                [
+                    ['center',None,None,None],
+                    [None,'center',None,None],
+                    [None,None,'center',None]
+                ]
+            ))
+
+            self.assertTrue(np.array_equal(
+                rg.cells.get_style_detail("alignment","vertical"),
+                [
+                    ['center',None,None,None],
+                    [None,'center',None,None],
+                    [None,None,'center',None]
+                ]
+            ))
+
+            # on column, center=False
+            rg = SheetCellRange(ws,range_string="A7:D9").write(array)
+            rg.merge_consecutive_cells(on="column",center=False)
+
+
+            self.assertTrue(np.array_equal(
+                rg.cell_values,
+                [
+                    [1,1,2,3],
+                    [None,2,None,None],
+                    [3,None,3,None]
+                ]
+            ))
+
+            self.assertTrue(all(
+                rg.cells.get_style_detail("alignment","vertical").flatten() == None
+            ))
+
+            self.assertTrue(all(
+                rg.cells.get_style_detail("alignment","horizontal").flatten() == None
+            ))
+
+            wb.close()
+
     def test_autosize(self):
         wb = Workbook()
         ws = wb.active

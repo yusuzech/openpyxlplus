@@ -1,6 +1,6 @@
 from openpyxl.worksheet.cell_range import CellRange
 from . import utils
-from openpyxl.styles import Border,Side
+from openpyxl.styles import Border,Side,Alignment
 import numpy as np
 from copy import copy
 import re
@@ -176,6 +176,46 @@ class SheetCellRange(CellRange):
         )
         return(self)
 
+    def merge_consecutive_cells(self,on="row",center=True):
+        """
+        Merge consecutive cells by rows or by columns
+
+        Parameters:
+        on: "row" or "column". "row" to merge horizontally (same columns are merged);
+            "column" to merge vertically (different columns are merged)
+        center: True to center merged cells.
+        """
+        if on == "row":
+            temp = self.cells
+        elif on == "column":
+            temp = self.cells.transpose()
+        else:
+            raise Exception(f"{on} not supported.")
+        groups = []
+        for row in temp:
+            g = []
+            for cell in row:
+                if len(g) == 0:
+                    g.append(cell)
+                else:
+                    if cell.value == g[-1].value:
+                        g.append(cell)
+                    else:
+                        groups.append(g)
+                        g = [cell]
+            groups.append(g)
+
+        for g in groups:
+            if len(g) > 1:
+                rg_temp = Cells(g).to_range()
+                if center:
+                    rg_temp.cells.modify_style(
+                        "alignment",
+                        Alignment(horizontal='center',vertical="center")
+                    )
+                rg_temp.merge_cells()
+        return(self)
+
     @property
     def cell_values(self):
         """
@@ -231,8 +271,15 @@ class SheetCellRange(CellRange):
         adjust_width: True/False. If False, won't adjust width
         adjust_height: True/False. If False, won't adjust height
 
-        Below are kwargs:
-        min_width, min_height, max_width, max_height, width_factor, height_factor, max_ndigits, wrap_text
+        Below are kwargs and their default value:
+        min_width: 1.43
+        min_height:  13.2
+        max_width: 255
+        max_height: 409
+        width_factor: 0.13
+        height_factor: 1.2
+        max_ndigits: 2 
+        wrap_text: False
 
         """
         cells = self.cells
@@ -365,7 +412,6 @@ class TableRange(SheetCellRange):
                 max_row = self.min_row + self.n_header - 1,
             )
             return(ret)
-
 
 class Cells(np.ndarray):
     """
