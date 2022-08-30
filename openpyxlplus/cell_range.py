@@ -276,7 +276,7 @@ class SheetCellRange(CellRange):
         min_height:  13.2
         max_width: 255
         max_height: 409
-        width_factor: 0.13
+        width_factor: 0.11
         height_factor: 1.2
         max_ndigits: 2 
         wrap_text: False
@@ -289,7 +289,7 @@ class SheetCellRange(CellRange):
         heights = np.zeros_like(cell_values)
         widths = np.zeros_like(cell_values)
         for ind,v in np.ndenumerate(cell_values):
-            ftsize = fontsizes[ind]
+            ftsize = fontsizes[ind] 
             h,w = utils.calc_value_size(v,fontsize=ftsize,**kwargs)
             heights[ind] = h
             widths[ind] = w
@@ -465,16 +465,21 @@ class Cells(np.ndarray):
         ret = ret.copy()
         return(ret)
 
-    def set_style(self,style_name,value):
+    def set_style(self,style_name,style,overwrite=True):
         """
         Set cells' style to value(s), overwrites original style. returns self
         
         Parameters:
         style_name: style name to change
-        value: desired style. Note that the shape of data should 
+        style: desired style. Note that the shape of data should 
             match the shape of range to ensure writing correctly.
+        overwrite: default True. if set to False, this function is equivalent to
+            self.modify_style
         """
-        v_setattr(self,style_name,value)
+        if overwrite:
+            v_setattr(self,style_name,style)
+        else:
+            self.modify_style(style_name,style)
         return(self)
 
     def modify_style(self,style_name,style):

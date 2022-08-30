@@ -71,7 +71,7 @@ def calc_value_size(
         min_height=13.2,
         max_width=255,
         max_height=409,
-        width_factor=0.13,
+        width_factor=0.11,
         height_factor=1.2,
         ndigits=2,
         fontsize=11,
