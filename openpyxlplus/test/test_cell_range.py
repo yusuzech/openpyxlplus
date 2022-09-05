@@ -304,15 +304,27 @@ class TestCells(unittest.TestCase):
 
     def test_get_style_detail(self):
         # detail in single level
+        wb = Workbook()
+        ws = wb.active
+        cells = Cells.from_range(ws,"A1:B5")
+
+        cells.modify_style("font",Font(b=True))
+        cells.add_border()
+
         self.assertTrue(np.array_equal(
-            self.cells[:,[0]].get_style_detail("font","b"),
-            np.array([False]*4).reshape((4,1))
+            cells[:,[0]].get_style_detail("font","b"),
+            np.array([True]*5).reshape((5,1))
         ))
 
         # detail in multiple level
         self.assertTrue(np.array_equal(
-            self.cells[:,[0]].get_style_detail("border",["left","style"]),
-            np.array([None]*4).reshape((4,1))
+            cells[:,[0]].get_style_detail("border",["left","style"]),
+            np.array(["thin"]*5).reshape((5,1))
+        ))
+
+        self.assertTrue(np.array_equal(
+            cells[:,[0]].get_style_detail("border","left.style"),
+            np.array(["thin"]*5).reshape((5,1))
         ))
 
     def test_set_style(self):

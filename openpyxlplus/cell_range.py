@@ -434,7 +434,7 @@ class Cells(np.ndarray):
     def from_range(ws, range_string=None, min_col=None, min_row=None,
         max_col=None, max_row=None, title=None):
         """
-        Construct CellRange from range string or min/max col/row.
+        Construct Cells from range string or min/max col/row.
         """
         ret = SheetCellRange(ws, range_string=range_string, min_col=min_col, 
             min_row=min_row, max_col=max_col, max_row=max_row, title=title).cells
@@ -454,12 +454,16 @@ class Cells(np.ndarray):
         Parameters:
         style_name: name of cell style
         details: attribute name of the detail, if detail is nested, provide a 
-            list of attribute names. 
-            e.g. object.get_style_detail("Border",["left","style"]) 
+            list of attribute names or style names separated by dots
+            e.g. self.get_style_detail("Border",["left","style"]) 
+            or self.get_style_detail("Border","left.style") 
         """
         ret = self.get_style(style_name)
         if type(detail) == str:
-            detail = [detail]
+            if "." in detail:
+                detail = detail.split(".")
+            else:
+                detail = [detail]
         for x in detail:
             ret = v_getattr(ret,x)
         ret = ret.copy()
