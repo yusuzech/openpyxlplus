@@ -1,5 +1,5 @@
 import unittest
-from openpyxlplus.cell_range import SheetCellRange,TableRange,Cells
+from openpyxlplus.cell_range import SheetCellRange,SheetTableRange,Cells
 from openpyxlplus import writer
 from openpyxl import load_workbook,Workbook
 from openpyxl.styles import Font,Border,Side
@@ -205,7 +205,7 @@ class TestSheetCellRange(unittest.TestCase):
 
 
 
-class TestTableRange(unittest.TestCase):
+class TestSheetTableRange(unittest.TestCase):
     def setUp(self):
         self.wb = load_workbook(current_folder +"/test_cell_range.xlsx")
         self.ws = wb["Sheet1"]
@@ -215,7 +215,7 @@ class TestTableRange(unittest.TestCase):
     def test_index_header(self):
         ## Single level index and header
         # with index and header
-        table_range1 = TableRange(self.ws,range_string="B2:G5",n_index=1,
+        table_range1 = SheetTableRange(self.ws,range_string="B2:G5",n_index=1,
             n_header=1)
         self.assertEqual(table_range1.header.coord,"C2:G2")
         self.assertEqual(table_range1.index.coord,"B3:B5")
@@ -223,7 +223,7 @@ class TestTableRange(unittest.TestCase):
         self.assertEqual(table_range1.top_left_corner.coord,"B2")
 
         # with header
-        table_range1 = TableRange(self.ws,range_string="B2:G5",n_index=0,
+        table_range1 = SheetTableRange(self.ws,range_string="B2:G5",n_index=0,
             n_header=1)
         self.assertEqual(table_range1.header.coord,"B2:G2")
         self.assertIsNone(table_range1.index)
@@ -231,7 +231,7 @@ class TestTableRange(unittest.TestCase):
         self.assertIsNone(table_range1.top_left_corner)
 
         # with index
-        table_range1 = TableRange(self.ws,range_string="B2:G5",n_index=1,
+        table_range1 = SheetTableRange(self.ws,range_string="B2:G5",n_index=1,
             n_header=0)
         self.assertIsNone(table_range1.header)
         self.assertEqual(table_range1.index.coord,"B2:B5")
@@ -239,7 +239,7 @@ class TestTableRange(unittest.TestCase):
         self.assertIsNone(table_range1.top_left_corner)
 
         # with no index and no header
-        table_range1 = TableRange(self.ws,range_string="B2:G5",n_index=0,
+        table_range1 = SheetTableRange(self.ws,range_string="B2:G5",n_index=0,
             n_header=0)
         self.assertIsNone(table_range1.header)
         self.assertIsNone(table_range1.index)
@@ -248,7 +248,7 @@ class TestTableRange(unittest.TestCase):
 
         ## Double level index and header
         # with index and header
-        table_range1 = TableRange(self.ws,range_string="A1:G5",n_index=2,
+        table_range1 = SheetTableRange(self.ws,range_string="A1:G5",n_index=2,
             n_header=2)
         self.assertEqual(table_range1.header.coord,"C1:G2")
         self.assertEqual(table_range1.index.coord,"A3:B5")
@@ -256,7 +256,7 @@ class TestTableRange(unittest.TestCase):
         self.assertEqual(table_range1.top_left_corner.coord,"A1:B2")
 
         # with header
-        table_range1 = TableRange(self.ws,range_string="C1:G5",n_index=0,
+        table_range1 = SheetTableRange(self.ws,range_string="C1:G5",n_index=0,
             n_header=2)
         self.assertEqual(table_range1.header.coord,"C1:G2")
         self.assertIsNone(table_range1.index)
@@ -264,7 +264,7 @@ class TestTableRange(unittest.TestCase):
         self.assertIsNone(table_range1.top_left_corner)
 
         # with index
-        table_range1 = TableRange(self.ws,range_string="A3:G5",n_index=2,
+        table_range1 = SheetTableRange(self.ws,range_string="A3:G5",n_index=2,
             n_header=0)
         self.assertIsNone(table_range1.header)
         self.assertEqual(table_range1.index.coord,"A3:B5")
@@ -272,7 +272,7 @@ class TestTableRange(unittest.TestCase):
         self.assertIsNone(table_range1.top_left_corner)
 
         # with no index and no header
-        table_range1 = TableRange(self.ws,range_string="C3:G5",n_index=0,
+        table_range1 = SheetTableRange(self.ws,range_string="C3:G5",n_index=0,
             n_header=0)
         self.assertIsNone(table_range1.header)
         self.assertIsNone(table_range1.index)

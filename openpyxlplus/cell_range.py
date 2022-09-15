@@ -46,6 +46,7 @@ class SheetCellRange(CellRange):
     def get_cell(self,coordinate,relative=True):
         """
         Parameters:
+        -------------
         coordinate: coordinate of cell in sheet (row:int,column:int)
         relative: Default to True, uses coordinate relative to top left 
             coordinate of this cell range. Additionally, when relative = True, 
@@ -53,6 +54,7 @@ class SheetCellRange(CellRange):
             coordinate in the sheet, which index starts from 0.
 
         Return:
+        ---------
         openpyxl.cell.cell.Cell object
         """
         if relative:
@@ -70,12 +72,14 @@ class SheetCellRange(CellRange):
         will the same shape as shape of coordinates
 
         Parameters:
+        -------------
         coordinates: list/tuple or numpy.ndarray which contains coordinate tuple 
          with format of (row:int,column:int)
         relative: whether the coordinates are relative to range. See details in
             .get_cells method
 
         Return:
+        ---------
         Cells object
         """
         try:
@@ -104,6 +108,7 @@ class SheetCellRange(CellRange):
         min/max of column/row index.
 
         Parameters:
+        -------------
         sliece_string: a numpy style subsetting string such as "1:,:-2"
         min_col_idx, min_row_idx, max_col_ids, max_row_idx: min/max index for 
             rows and column. index starting from 0.
@@ -124,6 +129,7 @@ class SheetCellRange(CellRange):
         Clear value/formatting in range
 
         Parameters:
+        -------------
         value: default True, clear values
         formatting: default True, clear formatting
         """
@@ -153,6 +159,7 @@ class SheetCellRange(CellRange):
         Alias to self.set_value. Write data to this range.
 
         Parameters:
+        -------------
         data: scaler, list or numpy array. Note that the shape of data should 
             match the shape of range to ensure writing correctly.
         keep_style: whether to keep original style
@@ -165,6 +172,7 @@ class SheetCellRange(CellRange):
         Add outside border to cells.
 
         Parameters:
+        -------------
         side: Side object. If None, use Side(style="thin")
         left: whether to add border to left
         right: whether to add border to right
@@ -181,6 +189,7 @@ class SheetCellRange(CellRange):
         Merge consecutive cells by rows or by columns
 
         Parameters:
+        -------------
         on: "row" or "column". "row" to merge horizontally (same columns are merged);
             "column" to merge vertically (different columns are merged)
         center: True to center merged cells.
@@ -268,6 +277,7 @@ class SheetCellRange(CellRange):
         Check openpyxlplus.utils.calc_value_size for more details.
 
         Parameters:
+        -------------
         adjust_width: True/False. If False, won't adjust width
         adjust_height: True/False. If False, won't adjust height
 
@@ -314,6 +324,7 @@ class SheetCellRange(CellRange):
         Show this range in excel application.
 
         Parameters:
+        -------------
         temp_name: temporary file name. Default to "temp.xlsx"
         """
         _ , workbook = utils.open_workbook(self.ws.parent,temp_name=temp_name
@@ -330,7 +341,7 @@ class SheetCellRange(CellRange):
     # method alias
     show = show_in_excel
 
-class TableRange(SheetCellRange):
+class SheetTableRange(SheetCellRange):
     """
     Create a CellRange that represents a table.
 
@@ -344,6 +355,7 @@ class TableRange(SheetCellRange):
                 max_col=None, max_row=None, title=None,n_index=0,n_header=1):
         """
         Parameters:
+        -------------
         n_index: integer, how many columns from left are index
         n_header: integer, how many rows from top are header 
         """
@@ -452,6 +464,7 @@ class Cells(np.ndarray):
         Get detail in style
 
         Parameters:
+        -------------
         style_name: name of cell style
         details: attribute name of the detail, if detail is nested, provide a 
             list of attribute names or style names separated by dots
@@ -474,6 +487,7 @@ class Cells(np.ndarray):
         Set cells' style to value(s), overwrites original style. returns self
         
         Parameters:
+        -------------
         style_name: style name to change
         style: desired style. Note that the shape of data should 
             match the shape of range to ensure writing correctly.
@@ -507,6 +521,7 @@ class Cells(np.ndarray):
         Set cells values with given value(s)
 
         Parameters:
+        -----------
         value: value to write to cells.Note that the shape of data should 
             match the shape of range to ensure writing correctly.
         keep_style: whether to preserve original style. If set to False, clear
@@ -587,6 +602,7 @@ class Cells(np.ndarray):
         Add outside border to cells.
 
         Parameters:
+        -------------
         side: Side object. If None, use Side(style="thin")
         left: whether to add border to left
         right: whether to add border to right

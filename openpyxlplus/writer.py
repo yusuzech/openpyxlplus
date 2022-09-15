@@ -7,12 +7,16 @@ def write_value(data,ws,cell=None,keep_style=True):
     Write value to a cell.
 
     Parameters:
+    -----------
+
     data: data to write to cell.
     ws: openpyxl.worksheet.worksheet.Worksheet object
     cell: openpyxl.cell.cell.Cell object. Default to A1 cell of ws.
     keep_style: Whether to preserve original cell style
 
     Return:
+    -----------
+
     Returns SheetCellRange object, which allows modification to where the data 
         is written to.
     """
@@ -28,6 +32,7 @@ def write_list(data,ws,cell=None,direction="down",keep_style=True):
     Write data to row or column
 
     Parameters:
+    -----------
     data: list,tuple or other iterable objects. Does NOT support nested list.
     ws: openpyxl.worksheet.worksheet.Worksheet object
     cell: openpyxl.cell.cell.Cell object. Cell to start writing. Default to 
@@ -37,6 +42,7 @@ def write_list(data,ws,cell=None,direction="down",keep_style=True):
     keep_style: Whether to preserve original cell styles.
 
     Return:
+    -----------
     Returns SheetCellRange object, which allows modification to where the data 
         is written to.
     """
@@ -85,6 +91,7 @@ def write_array(data,ws,cell=None,keep_style=True):
     Write data to range starting at provided cell.
 
     Parameters:
+    -----------
     data: List of list or numpy array. If data is list of list, length of all 
         nested lists must be equal.
     ws: openpyxl.worksheet.worksheet.Worksheet object
@@ -93,6 +100,7 @@ def write_array(data,ws,cell=None,keep_style=True):
     keep_style: Whether to preserve original cell styles.
 
     Return:
+    -----------
     Returns SheetCellRange object, which allows modification to where the data 
         is written to.
     """
@@ -134,6 +142,7 @@ def write_value_merged(
     parameter
 
     Parameters:
+    -----------
     data: scalar value to write to worksheet
     ws: openpyxl.worksheet.worksheet.Worksheet object
     cell: openpyxl.cell.cell.Cell object. Cell to start writing, this cell is 
@@ -171,6 +180,7 @@ def write_dataframe(
     Write pandas data frame to range starting at provided cell.
 
     Parameters:
+    -----------
     data: pandas dataframe.
     ws: openpyxl.worksheet.worksheet.Worksheet object
     cell: openpyxl.cell.cell.Cell object. Cell to start writing, this cell is 
@@ -180,7 +190,8 @@ def write_dataframe(
     keep_style: Whether to preserve original cell styles.
 
     Return:
-    Returns TableRange object, which allows modification to where the data is 
+    -----------
+    Returns SheetTableRange object, which allows modification to where the data is 
         written to.
     """
     # separate tables to write into 3 parts: header, index and body
@@ -255,7 +266,7 @@ def write_dataframe(
     )
     
     # create TableRange object
-    table_range = cell_range.TableRange(
+    table_range = cell_range.SheetTableRange(
         ws,
         min_col=anchor_col_master,
         min_row=anchor_row_master,

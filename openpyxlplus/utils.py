@@ -43,11 +43,15 @@ def calc_value_shape(value,wrap_text=False,ndigits=2):
         n_vertical: 1
 
     Parameters:
+    -----------
+
     value: any value, converted to text to get text length
-    wrap_text: whether to count lines (split by "\n")
+    wrap_text: whether to count lines (split by "\\n")
     ndigits: number of digits to round number to.
 
     Return:
+    -------
+
     (n_vertical,n_horizontal)
     """
     if isinstance(value,(number,int,float)):
@@ -83,11 +87,13 @@ def calc_value_size(
     width = fontsize * width factor * number of characters
     height = fontsize * height factor * 1
 
-    If wrap_text = True and newline("\n") present in cell text:
+    If wrap_text = True and newline("\\n") present in cell text:
     width = fontsize * width factor * number of characters in longest line
     height = fontsize * height factor * number of lines
 
     Parameters:
+    -----------
+
     wrap_text: wrap text
     min_width: width won't be below this number
     min_height: height won't be below this number
@@ -100,6 +106,8 @@ def calc_value_size(
     fontsize: fontsize of characters in cell
 
     Return:
+    -------
+    
     (height,width)
     """
     n_verical, n_horizontal = calc_value_shape(value,wrap_text=wrap_text,ndigits=ndigits)
