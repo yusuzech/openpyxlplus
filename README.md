@@ -3,7 +3,7 @@
 Based on openpyxl package. This package stores cells as numpy array which enables easier writing, modifications and styling of worksheets.
 
 1. Use `openpyxlplus.writer` to write scaler value, list, numpy array, pandas dataframe to worksheet. 
-2. Use `openpyxl.cell_range.SheetCellRange`, `openpyxl.cell_range.SheetTableRange` and `openpyxl.cell_range.Cells` to write/get cell values and get/write/modify cell attribute easily.
+2. Use `openpyxlplus.cell_range.SheetCellRange`, `openpyxlplus.cell_range.SheetTableRange` and `openpyxlplus.cell_range.Cells` to write/get cell values and get/write/modify cell attribute easily.
 
 # How to Use
 
