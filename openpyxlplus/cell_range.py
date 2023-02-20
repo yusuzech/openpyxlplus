@@ -274,6 +274,12 @@ class SheetCellRange(CellRange):
         Automatically adjust sheet width and height using given range. Based on
         number of characters in each cell and width/height factor.
 
+        if adjust_height = True:
+            height will be determined by calc_value_shape function which counts 
+            number of newline (\\n) in text (which is not desired in most case).
+        if adjust_height = False:
+            height will be determined automatically by application.
+
         Check openpyxlplus.utils.calc_value_size for more details.
 
         Parameters:
@@ -287,7 +293,7 @@ class SheetCellRange(CellRange):
         max_width: 255
         max_height: 409
         width_factor: 0.11
-        height_factor: 1.2
+        height_factor: 1.35
         max_ndigits: 2 
         wrap_text: False
 
