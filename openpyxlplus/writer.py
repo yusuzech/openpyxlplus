@@ -179,6 +179,14 @@ def write_dataframe(
     """
     Write pandas data frame to range starting at provided cell.
 
+    Note:
+    -----
+    index headers are always ignored because index names(headers) could have more 
+    levels than column headers. In this case, indexes could be overwritten by index names.
+
+    If you really need to write index names, please use `.reset_index` method to reset 
+    indexes as columns.
+
     Parameters:
     -----------
     data: pandas dataframe.
